@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+    <title>Index</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+
+<style>
+.bs-canvas-overlay {
+   opacity: 0;
+   z-index: -1;
+}
+
+.bs-canvas-overlay.show {
+   opacity: 0.85;
+   z-index: 1100;
+}
+
+.bs-canvas {
+   top: 0;
+   width: 0;
+   z-index: 1110;
+   overflow-x: hidden;
+   overflow-y: auto;
+}
+
+.bs-canvas-left {
+   left: 0;
+}
+
+.bs-canvas-right {
+   right: 0;
+}
+
+.bs-canvas-anim {
+   transition: all .4s ease-out;
+   -webkit-transition: all .4s ease-out;
+   -moz-transition: all .4s ease-out;
+   -ms-transition: all .4s ease-out;
+}
+
+</style>
+</head>
+<body>
+
+    <!-- Overlay, must be placed direct after the opening body tag. -->
+    <div class="bs-canvas-overlay bs-canvas-anim bg-dark position-fixed w-100 h-100"></div>
+
+    <!-- Non-pushable content. -->
+    <nav class="navbar">
+    </nav>
+
+    <!-- Pushable content along with off-canvas opener. -->
+    <div class="bs-offset-main bs-canvas-anim">
+        <!-- <button class="btn btn-danger" type="button" data-toggle="canvas" data-target="#bs-canvas-left" aria-expanded="false" aria-controls="bs-canvas-left">&#9776;</button> -->
+        <button class="btn btn-primary" type="button" data-toggle="canvas" data-target="#bs-canvas-right" aria-expanded="false" aria-controls="bs-canvas-right">&#9776;</button>
+
+    </div>
+
+    <!-- Off-canvas sidebar markup, left/right or both. -->
+
+    <div id="bs-canvas-right" class="bs-canvas bs-canvas-anim bs-canvas-right position-fixed bg-light h-100">
+        <header class="bs-canvas-header p-3 bg-primary overflow-auto">
+            <button type="button" class="bs-canvas-close float-left close" aria-label="Close"><span aria-hidden="true" class="text-light">&times;</span></button>
+            <h4 class="d-inline-block text-light mb-0 float-right">Canvas Header</h4>
+        </header>
+        <div class="bs-canvas-content px-3 py-5">
+            ...
+        </div>
+    </div>
+</body>
+
+
+<script type="text/javascript">
+    jQuery(document).ready(function($) {
+   var bsDefaults = {
+         offset: false,
+         overlay: true,
+         width: '330px'
+      },
+      bsMain = $('.bs-offset-main'),
+      bsOverlay = $('.bs-canvas-overlay');
+
+   $('[data-toggle="canvas"][aria-expanded="false"]').on('click', function() {
+      var canvas = $(this).data('target'),
+         opts = $.extend({}, bsDefaults, $(canvas).data()),
+         prop = $(canvas).hasClass('bs-canvas-right') ? 'margin-right' : 'margin-left';
+
+      if (opts.width === '100%')
+         opts.offset = false;
+
+      $(canvas).css('width', opts.width);
+      if (opts.offset && bsMain.length)
+         bsMain.css(prop, opts.width);
+
+      $(canvas + ' .bs-canvas-close').attr('aria-expanded', "true");
+      $('[data-toggle="canvas"][data-target="' + canvas + '"]').attr('aria-expanded', "true");
+      if (opts.overlay && bsOverlay.length)
+         bsOverlay.addClass('show');
+      return false;
+   });
+
+   $('.bs-canvas-close, .bs-canvas-overlay').on('click', function() {
+      var canvas, aria;
+      if ($(this).hasClass('bs-canvas-close')) {
+         canvas = $(this).closest('.bs-canvas');
+         aria = $(this).add($('[data-toggle="canvas"][data-target="#' + canvas.attr('id') + '"]'));
+         if (bsMain.length)
+            bsMain.css(($(canvas).hasClass('bs-canvas-right') ? 'margin-right' : 'margin-left'), '');
+      } else {
+         canvas = $('.bs-canvas');
+         aria = $('.bs-canvas-close, [data-toggle="canvas"]');
+         if (bsMain.length)
+            bsMain.css({
+               'margin-left': '',
+               'margin-right': ''
+            });
+      }
+      canvas.css('width', '');
+      aria.attr('aria-expanded', "false");
+      if (bsOverlay.length)
+         bsOverlay.removeClass('show');
+      return false;
+   });
+});
+</script>
+</html>
