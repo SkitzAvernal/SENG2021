@@ -55309,14 +55309,14 @@ function init() {
   });
   var opStreetMapHumanitarian = new _Tile.default({
     source: new _OSM.default({
-      url: 'http://tile.thunderforest.com/cycle/${z}/${x}/${y}.png'
+      url: 'http://{a-c}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'
     }),
     visible: false,
     title: 'OSMHumanitarian'
   });
   var stamenTerrain = new _Tile.default({
     source: new _XYZ.default({
-      url: 'http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg',
+      url: "http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg",
       attributions: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
     }),
     visible: true,
@@ -55374,6 +55374,17 @@ jQuery(document).ready(function ($) {
 var search_btn = document.getElementById("search_btn");
 search_btn.addEventListener("click", function () {
   location.replace('./landmark.html');
+});
+var fetchData = {
+  method: 'GET',
+  headers: {
+    'Accept': 'application/json'
+  }
+};
+fetch('https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?apiKey=4ZRwHTCnCEe1HV3smhin6xJBjTP9r8zwWyZz-8rM3a4&mode=retrieveLandmarks&prox=37.7442,-119.5931,1000', fetchData).then(function (response) {
+  return response.json();
+}).then(function (data) {
+  return console.log(data.Response.View);
 });
 },{"ol/ol.css":"node_modules/ol/ol.css","ol":"node_modules/ol/index.js","ol/layer/Tile":"node_modules/ol/layer/Tile.js","ol/source/OSM":"node_modules/ol/source/OSM.js","ol/source/XYZ":"node_modules/ol/source/XYZ.js","ol/layer/Group":"node_modules/ol/layer/Group.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];

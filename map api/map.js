@@ -28,7 +28,7 @@ function init(){
 
     const opStreetMapHumanitarian = new TileLayer({
         source: new OSM({
-            url: 'http://tile.thunderforest.com/cycle/${z}/${x}/${y}.png'
+            url: 'http://{a-c}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png'
         }),
         visible: false,
         title: 'OSMHumanitarian'
@@ -37,7 +37,7 @@ function init(){
 
     const stamenTerrain = new TileLayer({
         source: new XYZ({
-            url: 'http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg',
+            url:  "http://tile.stamen.com/terrain/{z}/{x}/{y}.jpg",
             attributions: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
         }),
         visible: true,
@@ -109,3 +109,17 @@ var search_btn = document.getElementById("search_btn");
 search_btn.addEventListener("click", function() {
     location.replace('./landmark.html')
 });
+
+var fetchData = {
+    method: 'GET',
+    headers: {
+
+      'Accept': 'application/json',
+    }
+  }
+
+
+
+  fetch('https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?apiKey=4ZRwHTCnCEe1HV3smhin6xJBjTP9r8zwWyZz-8rM3a4&mode=retrieveLandmarks&prox=37.7442,-119.5931,1000', fetchData)
+  .then(response => response.json())
+  .then(data => console.log(data.Response.View))
