@@ -104,3 +104,8 @@ jQuery(document).ready(function($) {
        return false;
     });
 });
+
+var search_btn = document.getElementById("search_btn");
+search_btn.addEventListener("click", function() {
+    location.replace('./landmark.html')
+});

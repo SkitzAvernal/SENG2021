@@ -55371,6 +55371,10 @@ jQuery(document).ready(function ($) {
     return false;
   });
 });
+var search_btn = document.getElementById("search_btn");
+search_btn.addEventListener("click", function () {
+  location.replace('./landmark.html');
+});
 },{"ol/ol.css":"node_modules/ol/ol.css","ol":"node_modules/ol/index.js","ol/layer/Tile":"node_modules/ol/layer/Tile.js","ol/source/OSM":"node_modules/ol/source/OSM.js","ol/source/XYZ":"node_modules/ol/source/XYZ.js","ol/layer/Group":"node_modules/ol/layer/Group.js"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
