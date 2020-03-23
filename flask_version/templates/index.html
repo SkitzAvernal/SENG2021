@@ -1,0 +1,244 @@
+<html>
+
+ <head>
+    <title>OpenLayers</title>
+    <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/build/ol.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/css/ol.css">
+    <script src="https://cdn.rawgit.com/kikocorreoso/map2wiki/master/src/static/brython_dist.js"></script>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <link rel="shortcut icon" href="">
+    <style>
+        .bs-canvas-overlay {
+            opacity: 0;
+            z-index: -1;
+        }
+
+        .bs-canvas-overlay.show {
+            opacity: 0.85;
+            z-index: 1100;
+        }
+
+        .bs-canvas {
+            top: 0;
+            width: 0;
+            z-index: 1110;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .bs-canvas-left {
+            left: 0;
+        }
+
+        .bs-canvas-right {
+            right: 0;
+        }
+
+        .bs-canvas-anim {
+            transition: all .4s ease-out;
+            -webkit-transition: all .4s ease-out;
+            -moz-transition: all .4s ease-out;
+            -ms-transition: all .4s ease-out;
+        }
+        .pin{
+            height:30;
+            width:30;
+        }
+    </style>
+
+</head>
+
+ <body>
+    <div id="mapdiv" class = "mapdiv"></div>
+    <div style = "position: absolute; top: 10px; left: 40px; padding: 5px;">
+            <button id = "nearby-btn" class = "btn btn-primary rounded-pill"> Show Nearby </button>
+
+    </div>
+    <div id="search"  style="position: absolute; top: 10px; right: 10px; padding: 5px">
+
+        <form>
+            <div class = "input-group">
+                    <input type="text" class="form-control rounded-pill form-control form-control-md" placeholder="Enter a Landmark">
+                    <span class="input-group-btn">
+                            <a href="{{url_for('landmark')}}"><button id = "search_btn" class="btn btn-primary rounded-pill" type="button">Search</button></a>
+                    </span>
+                    <!-- Pushable content along with off-canvas opener. -->
+                    <div class="bs-offset-main bs-canvas-anim">
+                        <button id = "toggle-btn" class="btn btn-primary rounded-pill"  type="button" data-toggle="canvas" data-target="#bs-canvas-right" aria-expanded="false" aria-controls="bs-canvas-right">&#9776;</button>
+                    </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Overlay, must be placed direct after the opening body tag. -->
+    <div class="bs-canvas-overlay bs-canvas-anim position-fixed w-100 h-100"></div>
+
+    <!-- Non-pushable content. -->
+    <nav class="navbar">
+    </nav>
+
+    <!-- Off-canvas sidebar markup, left/right or both. -->
+
+    <div id="bs-canvas-right" class="bs-canvas bs-canvas-anim bs-canvas-right position-fixed bg-light h-100">
+        <header class="bs-canvas-header p-3 bg-primary overflow-auto">
+            <button type="button" class="bs-canvas-close float-left close" aria-label="Close"><span aria-hidden="true" class="text-light">&times;</span></button>
+            <h4 class="d-inline-block text-light mb-0 float-right">Places</h4>
+                        
+
+
+        </header>
+        <div class="bs-canvas-content px-3 py-5" >
+            <ul id = 'places-list' class="list-group">
+            </ul>
+        </div>
+    </div>
+
+    <script src = "/static/index.js"></script>
+
+    <script>
+
+var view = new ol.View({
+    center: [16832505.12095191,-4011613.961964385],
+     zoom: 12
+});
+        var map = new ol.Map({
+   target: 'mapdiv',
+   layers: [
+     new ol.layer.Tile({
+       source: new ol.source.OSM()
+     })
+   ],
+   view: view,
+   layers: [
+     new ol.layer.Tile({
+         source : new ol.source.Stamen({
+            layer: 'terrain'
+         })
+     })
+   ]
+ });
+
+
+
+  // set up the geolocation api to track our position
+  var geolocation = new ol.Geolocation({
+  // enableHighAccuracy must be set to true to have the heading value.
+  trackingOptions: {
+    enableHighAccuracy: true
+  },
+  projection: view.getProjection()
+});
+
+
+var accuracyFeature = new ol.Feature();
+geolocation.on('change:accuracyGeometry', function() {
+  accuracyFeature.setGeometry(geolocation.getAccuracyGeometry());
+});
+
+var positionFeature = new ol.Feature();
+positionFeature.setStyle(new ol.style.Style({
+  image: new ol.style.Circle({
+    radius: 10,
+    fill: new ol.style.Fill({
+      color: '#3399CC'
+    }),
+    stroke: new ol.style.Stroke({
+      color: '#fff',
+      width: 2
+    })
+  })
+}));
+
+geolocation.on('change:position', function() {
+  var coordinates = geolocation.getPosition();
+  positionFeature.setGeometry(coordinates ?
+    new ol.geom.Point(coordinates) : null);
+});
+
+new ol.layer.Vector({
+  map: map,
+  source: new ol.source.Vector({
+    features: [accuracyFeature, positionFeature]
+  })
+});
+
+geolocation.setTracking(true);
+geolocation.on('change', function(evt) {
+    map.getView().setCenter(geolocation.getPosition());
+    map.getView().setZoom(16);
+    var coords = ol.proj.transform(geolocation.getPosition(), 'EPSG:3857', 'EPSG:4326');
+    var cur_lat = coords[0];
+    var cur_lon = coords[1];
+    console.log(cur_lon, cur_lat)
+    localStorage.setItem('cur_lon', cur_lon.toString());
+    localStorage.setItem('cur_lat', cur_lat.toString());
+    
+});
+
+document.getElementById("nearby-btn").onclick = function() {
+    var fetch_url = 'https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?apiKey=4ZRwHTCnCEe1HV3smhin6xJBjTP9r8zwWyZz-8rM3a4&mode=retrieveLandmarks&prox=' + localStorage.getItem('cur_lon') + ',' + localStorage.getItem('cur_lat') + ',100000';
+    fetch(fetch_url, fetchData)
+
+    // console.log(data.Response.View[0].Result[0].Location.DisplayPosition)\
+
+    .then(response => response.json())
+    .then(data => {
+
+        for (var result of data.Response.View[0].Result) {
+                    var element = document.createElement('div');
+                    element.classList.add("pin");
+                    element.innerHTML = '<img class = "pin" src="https://img.icons8.com/color/96/000000/marker.png"/>';
+                    var marker = new ol.Overlay({
+                        position: ol.proj.transform([result.Location.DisplayPosition.Longitude, result.Location.DisplayPosition.Latitude], 'EPSG:4326','EPSG:3857'),
+                        positioning: 'center-center',
+                        element:element
+
+                    });
+                    map.addOverlay(marker);
+                    console.log(result.Location.Name)
+        }
+    })
+}
+var list = document.getElementById('places-list');
+
+document.getElementById("toggle-btn").onclick = function() {
+    var fetch_url = 'https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?apiKey=4ZRwHTCnCEe1HV3smhin6xJBjTP9r8zwWyZz-8rM3a4&mode=retrieveLandmarks&prox=' + localStorage.getItem('cur_lon') + ',' + localStorage.getItem('cur_lat') + ',100000';
+    fetch(fetch_url, fetchData)
+
+    // console.log(data.Response.View[0].Result[0].Location.DisplayPosition)\
+
+    .then(response => response.json())
+    .then(data => {
+
+        for (var result of data.Response.View[0].Result) {
+                    var list_item = document.createElement('li');
+                    list_item.classList.add('list-group-item');
+                    list_item.classList.add('list-group-item-success');
+                    list_item.innerHTML = result.Location.Name;
+                    list.appendChild(list_item);
+                    console.log(result.Location.Name)
+        }
+    })
+}
+
+  
+
+
+
+function getLocation() {
+    navigator.geolocation.getCurrentPosition(showPosition);
+}
+
+function showPosition(position) {
+  console.log(position.coords.latitude + " ," +  position.coords.longitude);
+}
+
+
+    </script>
+</body>
+
+</html>

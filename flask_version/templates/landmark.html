@@ -1,0 +1,124 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <title>Landmark</title>
+
+    <style>
+        .bg  {
+            background-image:url('/static/bg.png');
+            background-repeat:no-repeat;
+            background-size:cover;
+            opacity: 0.4;
+            height: 100%;
+            width: 100%;
+            position : relative;
+            top: 20;
+
+
+        }
+
+        .main{
+            position: relative;
+
+        }
+
+        .content{
+            position: absolute;
+            top:0;
+            height:100%;
+            width:100%;
+        }
+    </style>
+</head>
+<body>
+        <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
+                <a class="navbar-brand" href="#">LANDMARK EXPLORER</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                  <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                  <ul class="nav navbar-nav ml-auto">
+                    <li class="nav-item active">
+                      <a class="nav-link" href="{{url_for('index')}}">Home</a>
+                    </li>
+
+                  </ul>
+                </div>
+         </nav>
+
+        <div class="main">
+            <div class = "bg">
+
+            </div>
+            <div class = "content">
+                <div class="d-flex justify-content-center p-5 ">
+                        <h1 class="float-center">Sydney Harbour Bridge</h1>
+                </div>
+
+
+                <div class="container p-5">
+                    <div class = "row" >
+                        <div class = "col">
+                            <img class = "img-fluid" src="https://upload.wikimedia.org/wikipedia/commons/d/d1/Sydney_Harbour_Bridge_from_Circular_Quay.jpg">
+                        </div>
+                        <div class = "col border border-primary bg-white text-dark">
+                                <div class="d-flex justify-content-left p-2">
+                                        <h4 >Events</h4>
+
+                                </div>
+                                <ul class = "list-group">
+                                    <li class = "list-group-item">
+                                        Vivid Sydney - Light, Music and Ideas
+                                    </li>
+                                    <li class = "list-group-item">
+                                            Sunset Sessions: Live Music at Cockatoo Island
+                                    </li>
+                                </ul>
+                        </div>
+                    </div>
+                    <div class = "row p-2">
+                        <div class = "col border border-primary bg-white text-dark ">
+                                <div class="d-flex justify-content-left p-2">
+                                        <h4 >About</h4>
+                                </div>
+                                <div class="container-fluid">
+                                    <p>
+                                            The Sydney Harbour Bridge is a heritage-listed steel through arch bridge across Sydney Harbour that carries rail, vehicular, bicycle, and pedestrian traffic between the Sydney central business district (CBD) and the North Shore. The view of the bridge, the harbour, and the nearby Sydney Opera House is widely regarded as an iconic image of Sydney, and of Australia itself. The bridge is nicknamed "The Coathanger" because of its arch-based design.
+
+                                    </p>
+                                </div>
+                        </div>
+                    </div>
+                    <div class = "row p-2">
+                            <div class = "col border border-primary bg-white text-dark ">
+                                    <div class="d-flex justify-content-left p-2">
+                                            <h4 >News</h4>
+                                    </div>
+                                    <div class="container-fluid">
+                                        <p>
+                                                A woman has been evacuated off the top of the Sydney Harbour Bridge, after suffering heat exhaustion while completing the bridge climb.
+
+The woman, aged in her fifties, was climbing the Harbour Bridge on Saturday afternoon when she suffered heat exhaustion.
+                                        </p>
+                                    </div>
+                            </div>
+                        </div>
+
+                </div>
+
+            </div>
+        </div>
+
+
+
+
+</body>
+</html>
