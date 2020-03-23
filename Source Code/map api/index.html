@@ -1,0 +1,88 @@
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+    <title>Openlayer Web map</title>
+    <style>
+        .bs-canvas-overlay {
+            opacity: 0;
+            z-index: -1;
+        }
+
+        .bs-canvas-overlay.show {
+            opacity: 0.85;
+            z-index: 1100;
+        }
+
+        .bs-canvas {
+            top: 0;
+            width: 0;
+            z-index: 1110;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .bs-canvas-left {
+            left: 0;
+        }
+
+        .bs-canvas-right {
+            right: 0;
+        }
+
+        .bs-canvas-anim {
+            transition: all .4s ease-out;
+            -webkit-transition: all .4s ease-out;
+            -moz-transition: all .4s ease-out;
+            -ms-transition: all .4s ease-out;
+        }
+
+    </style>
+</head>
+<body>
+    <div id = 'js-map' class = 'map'></div>
+
+    <div id="search"  style="position: absolute; top: 10px; right: 10px; padding: 5px">
+
+        <form>
+            <div class = "input-group">
+                    <input type="text" class="form-control rounded-pill form-control form-control-md" placeholder="Enter a Landmark">
+                    <span class="input-group-btn">
+                            <a href="#"><button id = "search_btn" class="btn btn-primary rounded-pill" type="button">Search</button></a>
+                    </span>
+                    <!-- Pushable content along with off-canvas opener. -->
+                    <div class="bs-offset-main bs-canvas-anim">
+                        <button class="btn btn-primary rounded-pill"  type="button" data-toggle="canvas" data-target="#bs-canvas-right" aria-expanded="false" aria-controls="bs-canvas-right">&#9776;</button>
+                    </div>
+            </div>
+        </form>
+
+    <!-- Overlay, must be placed direct after the opening body tag. -->
+    <div class="bs-canvas-overlay bs-canvas-anim position-fixed w-100 h-100"></div>
+
+    <!-- Non-pushable content. -->
+    <nav class="navbar">
+    </nav>
+
+    <!-- Off-canvas sidebar markup, left/right or both. -->
+
+    <div id="bs-canvas-right" class="bs-canvas bs-canvas-anim bs-canvas-right position-fixed bg-light h-100">
+        <header class="bs-canvas-header p-3 bg-primary overflow-auto">
+            <button type="button" class="bs-canvas-close float-left close" aria-label="Close"><span aria-hidden="true" class="text-light">&times;</span></button>
+            <h4 class="d-inline-block text-light mb-0 float-right">Places</h4>
+        </header>
+        <div class="bs-canvas-content px-3 py-5">
+
+        </div>
+    </div>
+
+    <script src = "./map.js"></script>
+</body>
+</html>
