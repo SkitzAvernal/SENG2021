@@ -302,7 +302,11 @@ document.getElementById("toggle-btn").onclick = function() {
                     var tr = document.createElement('tr');
                     tr.classList.add("places_row");
                     var td = document.createElement('td');
-                    td.innerHTML = result.Location.Name;
+                    var link = document.createElement('a');
+                    var lm_name = result.Location.Name
+                    link.setAttribute("href", "#");
+                    link.innerHTML = result.Location.Name;
+                    td.appendChild(link);
                     tr.appendChild(td);
                     tb.appendChild(tr);
         }
