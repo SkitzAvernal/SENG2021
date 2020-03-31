@@ -265,7 +265,8 @@ document.getElementById("nearby-btn").onclick = function() {
                     content.setAttribute("data-toggle" ,"popover");
                     content.setAttribute("role" ,"button");
                     content.setAttribute("data-content", result.Location.Address.Label);
-                    content.setAttribute("title", result.Location.Name);
+                    var object = '<a href = "/landmark/' + result.Location.Name + '">' + result.Location.Name + '</a>';
+                    content.setAttribute("title", object);
                     content.innerHTML = '<img class="landmark_pin" src="/static/landmark.png"/>';
                     element.appendChild(content);
                     var marker = new ol.Overlay({
@@ -302,7 +303,11 @@ document.getElementById("toggle-btn").onclick = function() {
                     var tr = document.createElement('tr');
                     tr.classList.add("places_row");
                     var td = document.createElement('td');
-                    td.innerHTML = result.Location.Name;
+                    var link = document.createElement('a');
+                    var lm_name = result.Location.Name
+                    link.setAttribute("href", "/landmark/" + result.Location.Name);
+                    link.innerHTML = result.Location.Name;
+                    td.appendChild(link);
                     tr.appendChild(td);
                     tb.appendChild(tr);
         }
@@ -348,7 +353,8 @@ document.getElementById("search_btn").onclick = function() {
 
     });
     $(function () {
-      $('#landmark_pop').popover({title: document.getElementById("search-landmark").value,  trigger: 'hover | focus', html: true, content : data.Response.View[0].Result[0].Location.Address.Label});
+      var object = '<a href = "/landmark/' + search_landmark + '">' + search_landmark + '</a>';
+      $('#landmark_pop').popover({title: object,  trigger: 'hover | focus', html: true, content : data.Response.View[0].Result[0].Location.Address.Label});
     })
     map.addOverlay(marker);
     map.getView().setCenter(ol.proj.transform([result.Longitude, result.Latitude], 'EPSG:4326','EPSG:3857'));
