@@ -64,12 +64,12 @@
       }
 
 
-      
+
     </style>
 
 </head>
 
- <body> 
+ <body>
   <nav class="navbar sticky-top navbar-dark bg-primary justify-content-between">
     <a class="navbar-brand">LANDMARK EXPLORER</a>
     <form class="form-inline my-2 my-lg-0">
@@ -117,21 +117,21 @@
         <header class="bs-canvas-header p-3 bg-primary overflow-auto">
             <button type="button" class="bs-canvas-close float-left close" aria-label="Close"><span aria-hidden="true" class="text-light">&times;</span></button>
             <h4 class="d-inline-block text-light mb-0 float-right">Places</h4>
-                        
+
 
 
         </header>
         <div class="bs-canvas-content px-3 py-5" >
             <table class = "table table-hover" >
               <tbody id = "places_tb"></tbody>
-            </table> 
+            </table>
         </div>
     </div>
 
 </div>
 
 
-    
+
 
     <script src = "/static/index.js"></script>
 
@@ -190,11 +190,11 @@ var view = new ol.View({
     var cur_lat = coords[1];
     var cur_lon = coords[0];
     localStorage.setItem('cur_lon', cur_lon.toString());
-    localStorage.setItem('cur_lat', cur_lat.toString()); 
+    localStorage.setItem('cur_lat', cur_lat.toString());
     map.getView().setCenter(coordinates);
    map.getView().setZoom(14);
-    
-  });   
+
+  });
 
 
 
@@ -225,8 +225,8 @@ geolocation.on('change:position', function() {
   var cur_lat = coords[1];
   var cur_lon = coords[0];
   localStorage.setItem('cur_lon', cur_lon.toString());
-  localStorage.setItem('cur_lat', cur_lat.toString()); 
-  positionFeature.setGeometry(coordinates ?       
+  localStorage.setItem('cur_lat', cur_lat.toString());
+  positionFeature.setGeometry(coordinates ?
   new ol.geom.Point(coordinates) : null);
 });
 
@@ -279,7 +279,7 @@ document.getElementById("nearby-btn").onclick = function() {
                     console.log(result.Location.Name)
         }
         $(function () {
-         
+
           $(".lm").popover({trigger: 'hover | focus', html: true});
         });
     })
@@ -328,7 +328,7 @@ document.getElementById("search_btn").onclick = function() {
       elements[0].parentNode.removeChild(elements[0]);
   }
 
-  
+
   var search_landmark = document.getElementById("search-landmark").value;
   var fetch_url = 'https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext=' + search_landmark + '&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs';
   console.log(fetch_url)
@@ -339,7 +339,7 @@ document.getElementById("search_btn").onclick = function() {
     var element = document.createElement('div');
     element.classList.add("pin");
 
-   
+
     element.innerHTML = '<a id ="landmark_pop" tabindex="0" data-toggle="popover" role = "button" > <img class = "pin" src="https://img.icons8.com/color/96/000000/marker.png"/></a>';
     var marker = new ol.Overlay({
         position: ol.proj.transform([result.Longitude, result.Latitude], 'EPSG:4326','EPSG:3857'),
@@ -355,7 +355,7 @@ document.getElementById("search_btn").onclick = function() {
     map.getView().setZoom(14);
     localStorage.setItem('cur_lon', data.Response.View[0].Result[0].Location.DisplayPosition.Longitude.toString());
     localStorage.setItem('cur_lat', data.Response.View[0].Result[0].Location.DisplayPosition.Latitude.toString());
-    console.log(data.Response.View[0].Result[0].Location.DisplayPosition)
+    console.log(data.Response.View[0].Result[0].Location.DisplayPosition);
   })
 }
 
