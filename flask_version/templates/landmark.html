@@ -60,14 +60,14 @@
             </div>
             <div class = "content">
                 <div class="d-flex justify-content-center p-5 ">
-                        <h1 class="float-center">{{ name }}</h1>
+                        <h1 id= "lm_name" class="float-center">{{ name }}</h1>
                 </div>
 
 
                 <div class="container p-5">
                     <div class = "row" >
                         <div class = "col">
-                            <img class = "img-fluid" src="https://upload.wikimedia.org/wikipedia/commons/d/d1/Sydney_Harbour_Bridge_from_Circular_Quay.jpg">
+                            <img id = "lm_img" class = "img-fluid">
                         </div>
                         <div class = "col border border-primary bg-white text-dark">
                                 <div class="d-flex justify-content-left p-2">
@@ -90,8 +90,7 @@
                                         <h4 >About</h4>
                                 </div>
                                 <div class="container-fluid">
-                                    <p>
-                                            The Sydney Harbour Bridge is a heritage-listed steel through arch bridge across Sydney Harbour that carries rail, vehicular, bicycle, and pedestrian traffic between the Sydney central business district (CBD) and the North Shore. The view of the bridge, the harbour, and the nearby Sydney Opera House is widely regarded as an iconic image of Sydney, and of Australia itself. The bridge is nicknamed "The Coathanger" because of its arch-based design.
+                                    <p id = "about_element">
 
                                     </p>
                                 </div>
@@ -117,7 +116,31 @@ The woman, aged in her fifties, was climbing the Harbour Bridge on Saturday afte
             </div>
         </div>
 
+<script>
+    // About
+    var about = document.getElementById("about_element");
+    var fetch_url = "https://en.wikipedia.org/api/rest_v1/page/summary/" + document.getElementById("lm_name").innerHTML;
 
+    var fetchData;
+    fetch(fetch_url, fetchData)
+    .then(response => response.json())
+    .then(data => {
+        about.innerText = data.extract;
+    })
+
+    // Image
+    var image = document.getElementById("lm_img");
+    console.log(document.getElementById("lm_name").innerHTML)
+    fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + document.getElementById("lm_name").innerHTML;
+    console.log(fetch_url)
+    fetch(fetch_url, fetchData)
+    .then(response => response.json())
+    .then(data => {
+        console.log(data)
+        image.setAttribute("src", data.items[0].srcset[0].src);
+    })
+
+</script>
 
 
 </body>
