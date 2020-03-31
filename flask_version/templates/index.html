@@ -72,15 +72,42 @@
  <body> 
   <nav class="navbar sticky-top navbar-dark bg-primary justify-content-between">
     <a class="navbar-brand">LANDMARK EXPLORER</a>
-    <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="username" placeholder="Username" aria-label="Username">
+    {% if current_user.is_anonymous %}
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+    <ul>
+      {% for message in messages %}
+      <li>{{ message }}</li>
+      {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+    <form class="form-inline my-2 my-lg-0" action="{{ url_for('login') }}" method="POST">
+      {{ loginForm.hidden_tag() }}
+      <!-- <input class="form-control mr-sm-2" type="username" placeholder="Username" aria-label="Username">
       <input class="form-control mr-sm-2" type="password" placeholder="Password" aria-label="Password">
-      <button class="btn btn-primary border my-2 my-sm-2" type="submit">Login</button>
-      <button class="btn btn-primary border my-2 my-sm-2" type="submit">Sign Up</button>
-
+      <button class="btn btn-primary border my-2 my-sm-2" type="submit">Login</button> -->
+      <div class="form-group">
+        <!-- {{ loginForm.username.label }} -->
+        {{ loginForm.username(class="form-control", placeholder="username") }}
+        {% for error in loginForm.username.errors %}
+        <span style="color: red;">{{ error }}</span>
+        {% endfor %}
+      </div>
+      <div class="form-group">
+          <!-- {{ loginForm.password.label }} -->
+          {{ loginForm.password(class="form-control", placeholder="password") }}
+          {% for error in loginForm.password.errors %}
+          <span style="color: red;">{{ error }}</span>
+          {% endfor %}
+      </div>
+      {{ loginForm.submit(class="btn btn-primary border") }}
     </form>
+    <a href="{{ url_for('signup') }}"><button class="btn btn-primary border my-2 my-sm-2">Sign Up</button></a>
+    {% else %}
+    <a href="{{ url_for('logout') }}"><button class="btn btn-primary border my-2 my-sm-2">Log Out</button></a>
+    {% endif %}
   </nav>
-
 
 <div class = "content">
   <div id="mapdiv" class = "mapdiv"></div>
