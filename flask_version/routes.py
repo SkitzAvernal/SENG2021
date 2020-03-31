@@ -25,7 +25,7 @@ def index():
                            zoom = zoom, 
                            loginForm = loginForm)
 
-@app.route('/landmark')
+@app.route('/landmark/<lm_name>')
 def landmark(lm_name):
     return render_template('landmark.html', name = lm_name)
 

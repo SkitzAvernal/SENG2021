@@ -330,6 +330,10 @@ document.getElementById("toggle-btn").onclick = function() {
                     tr.classList.add("places_row");
                     var td = document.createElement('td');
                     td.innerHTML = result.Location.Name;
+                    td.addEventListener("click", function(){
+                        window.location.href = "/landmark/" + result.Location.Name
+                        console.log(result.Location.Name)
+                     });
                     tr.appendChild(td);
                     tb.appendChild(tr);
         }
