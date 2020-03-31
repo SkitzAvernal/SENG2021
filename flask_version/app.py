@@ -24,11 +24,11 @@ def index():
 
 
 @app.route('/landmark')
-def landmark():
-    return render_template('landmark.html')
+def landmark(lm_name):
+    return render_template('landmark.html', name = lm_name)
 
 
 
 
 if __name__ == '__main__':
-    app.run(debug = True, port = 130)
+    app.run(debug = True, port = 5000)
