@@ -122,8 +122,9 @@
 
         </header>
         <div class="bs-canvas-content px-3 py-5" >
-            <ul id = 'places-list' class="list-group">
-            </ul>
+            <table class = "table table-hover" >
+              <tbody id = "places_tb"></tbody>
+            </table> 
         </div>
     </div>
 
@@ -249,7 +250,6 @@ document.getElementById("nearby-btn").onclick = function() {
     var fetch_url = 'https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?apiKey=4ZRwHTCnCEe1HV3smhin6xJBjTP9r8zwWyZz-8rM3a4&mode=retrieveLandmarks&prox=' + localStorage.getItem('cur_lat') + ',' + localStorage.getItem('cur_lon') + ',100000';
     fetch(fetch_url, fetchData)
 
-    // console.log(data.Response.View[0].Result[0].Location.DisplayPosition)\
 
     .then(response => response.json())
     .then(data => {
@@ -279,30 +279,32 @@ document.getElementById("nearby-btn").onclick = function() {
                     console.log(result.Location.Name)
         }
         $(function () {
-          // var lm_name = result.Location.Name;
-          // var lm_id = '#' + result.Location.Name;
+         
           $(".lm").popover({trigger: 'hover | focus', html: true});
         });
     })
 }
-var list = document.getElementById('places-list');
+var tb = document.getElementById('places_tb');
 
 document.getElementById("toggle-btn").onclick = function() {
+    var elements = document.getElementsByClassName("places_row");
+    while (elements.length > 0) {
+      elements[0].parentNode.removeChild(elements[0]);
+    }
     var fetch_url = 'https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?apiKey=4ZRwHTCnCEe1HV3smhin6xJBjTP9r8zwWyZz-8rM3a4&mode=retrieveLandmarks&prox=' + localStorage.getItem('cur_lat') + ',' + localStorage.getItem('cur_lon') + ',100000';
     fetch(fetch_url, fetchData)
 
-    // console.log(data.Response.View[0].Result[0].Location.DisplayPosition)\
 
     .then(response => response.json())
     .then(data => {
 
         for (var result of data.Response.View[0].Result) {
-                    var list_item = document.createElement('li');
-                    list_item.classList.add('list-group-item');
-                    list_item.classList.add('list-group-item-success');
-                    list_item.innerHTML = result.Location.Name;
-                    list.appendChild(list_item);
-                    console.log(result.Location.Name)
+                    var tr = document.createElement('tr');
+                    tr.classList.add("places_row");
+                    var td = document.createElement('td');
+                    td.innerHTML = result.Location.Name;
+                    tr.appendChild(td);
+                    tb.appendChild(tr);
         }
     })
 }
@@ -357,7 +359,6 @@ document.getElementById("search_btn").onclick = function() {
   })
 }
 
-// var search_url = 
 
 
     </script>
