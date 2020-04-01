@@ -76,11 +76,9 @@
                                 </div>
                                 <ul class = "list-group">
                                     <li class = "list-group-item">
-                                        Vivid Sydney - Light, Music and Ideas
+                                       No Events currently, due to COVID-19 situation.
                                     </li>
-                                    <li class = "list-group-item">
-                                            Sunset Sessions: Live Music at Cockatoo Island
-                                    </li>
+                                    
                                 </ul>
                         </div>
                     </div>
@@ -122,7 +120,12 @@
     fetch(fetch_url, fetchData)
     .then(response => response.json())
     .then(data => {
-        about.innerText = data.extract;
+        if (data.extract == null) {
+            about.innerText = "No Imformation about this landmark.";
+        }
+        else {
+            about.innerText = data.extract;
+        }    
     })
 
     // Image
