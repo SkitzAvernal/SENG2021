@@ -72,15 +72,48 @@
  <body> 
   <nav class="navbar sticky-top navbar-dark bg-primary justify-content-between">
     <a class="navbar-brand">LANDMARK EXPLORER</a>
-    <form class="form-inline my-2 my-lg-0">
-      <input class="form-control mr-sm-2" type="username" placeholder="Username" aria-label="Username">
+    {% if current_user.is_anonymous %}
+    {% with errors = get_flashed_messages(with_categories=true) %}
+    {% if errors %}
+        {% for category, error in errors %}
+        <div class = "invalid-tooltip">
+            {{error}}
+        </div>
+        {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <form class="form-inline my-2 my-lg-0 needs-validation" novalidate action="{{ url_for('login') }}" method="POST">
+      {{ loginForm.hidden_tag() }}
+      <!-- <input class="form-control mr-sm-2" type="username" placeholder="Username" aria-label="Username">
       <input class="form-control mr-sm-2" type="password" placeholder="Password" aria-label="Password">
-      <button class="btn btn-primary border my-2 my-sm-2" type="submit">Login</button>
-      <button class="btn btn-primary border my-2 my-sm-2" type="submit">Sign Up</button>
-
+      <button class="btn btn-primary border my-2 my-sm-2" type="submit">Login</button> -->
+      <div class="form-group">
+        <!-- {{ loginForm.username.label }} -->
+        {{ loginForm.username(class="form-control mr-sm-2", placeholder="username") }}
+        {% for error in loginForm.username.errors %}
+        <p style="color: red;">{{ error }}</p>
+        {% endfor %}
+      </div>
+      <div class="form-group">
+          <!-- {{ loginForm.password.label }} -->
+          {{ loginForm.password(class="form-control mr-sm-2", placeholder="password") }}
+          {% for error in loginForm.password.errors %}
+          <p style="color: red;">{{ error }}</p>
+          {% endfor %}
+     
+         
+      </div>
+      
+      {{ loginForm.submit(class="btn btn-primary border") }}
+      
+     
     </form>
+    <a href="{{ url_for('signup') }}"><button class="btn btn-primary border my-2 my-sm-2">Sign Up</button></a>
+    {% else %}
+    <a href="{{ url_for('logout') }}"><button class="btn btn-primary border my-2 my-sm-2">Log Out</button></a>
+    {% endif %}
+    
   </nav>
-
 
 <div class = "content">
   <div id="mapdiv" class = "mapdiv"></div>
@@ -294,8 +327,6 @@ document.getElementById("toggle-btn").onclick = function() {
     }
     var fetch_url = 'https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?apiKey=4ZRwHTCnCEe1HV3smhin6xJBjTP9r8zwWyZz-8rM3a4&mode=retrieveLandmarks&prox=' + localStorage.getItem('cur_lat') + ',' + localStorage.getItem('cur_lon') + ',100000';
     fetch(fetch_url, fetchData)
-
-
     .then(response => response.json())
     .then(data => {
 
