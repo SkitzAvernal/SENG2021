@@ -35,14 +35,14 @@ def signup():
     loginForm = LoginForm()
 
     if current_user.is_authenticated:
-        return render_template('index.html', loginForm=loginForm)
+        return redirect(url_for('index'))
 
     if signupForm.validate_on_submit():
         user = User(username=signupForm.username.data, email=signupForm.email.data)
         user.set_password(signupForm.password.data)
         db.session.add(user)
         db.session.commit()
-        return render_template('index.html', loginForm=loginForm)
+        return redirect(url_for('index'))
 
     return render_template('signup.html', signupForm=signupForm)
 
