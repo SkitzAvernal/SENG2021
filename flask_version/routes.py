@@ -57,7 +57,7 @@ def login():
         user = User.query.filter_by(username=loginForm.username.data).first() 
         if user is None or not user.check_password(loginForm.password.data):
             flash('Invalid username or password')
-            render_template('index.html', loginForm=loginForm)
+            return render_template('index.html', loginForm=loginForm)
         login_user(user)
         return redirect(url_for('index'))
 
