@@ -73,13 +73,13 @@
   <nav class="navbar sticky-top navbar-dark bg-primary justify-content-between">
     <a class="navbar-brand">LANDMARK EXPLORER</a>
     {% if current_user.is_anonymous %}
-    {% with messages = get_flashed_messages() %}
-    {% if messages %}
-    <ul>
-      {% for message in messages %}
-      <li>{{ message }}</li>
-      {% endfor %}
-    </ul>
+    {% with errors = get_flashed_messages(with_categories=true) %}
+    {% if errors %}
+        {% for category, error in errors %}
+        <div class="alert alert-danger">
+            {{error}}
+        </div>
+        {% endfor %}
     {% endif %}
     {% endwith %}
     <form class="form-inline my-2 my-lg-0" action="{{ url_for('login') }}" method="POST">
