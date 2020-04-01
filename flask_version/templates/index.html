@@ -76,9 +76,9 @@
     {% with errors = get_flashed_messages(with_categories=true) %}
     {% if errors %}
         {% for category, error in errors %}
-        <div class = "invalid-tooltip">
+        <span class = "error">
             {{error}}
-        </div>
+        </span>
         {% endfor %}
     {% endif %}
     {% endwith %}
