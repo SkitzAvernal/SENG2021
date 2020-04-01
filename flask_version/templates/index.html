@@ -76,37 +76,43 @@
     {% with errors = get_flashed_messages(with_categories=true) %}
     {% if errors %}
         {% for category, error in errors %}
-        <div class="alert alert-danger">
+        <div class = "invalid-tooltip">
             {{error}}
         </div>
         {% endfor %}
     {% endif %}
     {% endwith %}
-    <form class="form-inline my-2 my-lg-0" action="{{ url_for('login') }}" method="POST">
+    <form class="form-inline my-2 my-lg-0 needs-validation" novalidate action="{{ url_for('login') }}" method="POST">
       {{ loginForm.hidden_tag() }}
       <!-- <input class="form-control mr-sm-2" type="username" placeholder="Username" aria-label="Username">
       <input class="form-control mr-sm-2" type="password" placeholder="Password" aria-label="Password">
       <button class="btn btn-primary border my-2 my-sm-2" type="submit">Login</button> -->
       <div class="form-group">
         <!-- {{ loginForm.username.label }} -->
-        {{ loginForm.username(class="form-control", placeholder="username") }}
+        {{ loginForm.username(class="form-control mr-sm-2", placeholder="username") }}
         {% for error in loginForm.username.errors %}
-        <span style="color: red;">{{ error }}</span>
+        <p style="color: red;">{{ error }}</p>
         {% endfor %}
       </div>
       <div class="form-group">
           <!-- {{ loginForm.password.label }} -->
-          {{ loginForm.password(class="form-control", placeholder="password") }}
+          {{ loginForm.password(class="form-control mr-sm-2", placeholder="password") }}
           {% for error in loginForm.password.errors %}
-          <span style="color: red;">{{ error }}</span>
+          <p style="color: red;">{{ error }}</p>
           {% endfor %}
+     
+         
       </div>
+      
       {{ loginForm.submit(class="btn btn-primary border") }}
+      
+     
     </form>
     <a href="{{ url_for('signup') }}"><button class="btn btn-primary border my-2 my-sm-2">Sign Up</button></a>
     {% else %}
     <a href="{{ url_for('logout') }}"><button class="btn btn-primary border my-2 my-sm-2">Log Out</button></a>
     {% endif %}
+    
   </nav>
 
 <div class = "content">
