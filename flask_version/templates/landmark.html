@@ -102,11 +102,8 @@
                                             <h4 >News</h4>
                                     </div>
                                     <div class="container-fluid">
-                                        <p>
-                                                A woman has been evacuated off the top of the Sydney Harbour Bridge, after suffering heat exhaustion while completing the bridge climb.
-
-The woman, aged in her fifties, was climbing the Harbour Bridge on Saturday afternoon when she suffered heat exhaustion.
-                                        </p>
+                                        <ul class="list-group" id="news_list"></ul>
+                                        <br>
                                     </div>
                             </div>
                         </div>
@@ -138,6 +135,42 @@ The woman, aged in her fifties, was climbing the Harbour Bridge on Saturday afte
     .then(data => {
         console.log(data)
         image.setAttribute("src", data.items[0].srcset[0].src);
+    })
+
+    var lm_name = document.getElementById("lm_name").innerHTML;
+    apiKey = "e8bf85737a554b158b25de6857b8de10"
+    newsAPIurl = "https://newsapi.org/v2/everything?qintitle=" + lm_name + "&apiKey=" + apiKey
+    fetch(newsAPIurl, fetchData)
+    .then(response => response.json())
+    .then(data => {
+        console.log("newapi")
+        console.log(data)
+        newsUl = document.getElementById('news_list')
+        if (data.totalResults == 0) {
+            const newsLi = document.createElement("li");
+            newsLi.className = "list-group-item";
+            newsLi.innerText = "No news about this landmark"
+            newsUl.appendChild(newsLi)
+        } else {
+            // For each article 
+            for (i = 0; i < data.totalResults && i < 5; i++) {
+                article = data.articles[i]
+                const articleLi = document.createElement("li");
+                articleLi.className = "list-group-item";
+                const a = document.createElement("a");
+                a.href = article.url
+                const title = document.createElement("h5");
+                title.innerText = article.title 
+                const description = document.createElement("p");
+                description.innerText = article.description
+
+                a.appendChild(title)
+                articleLi.appendChild(a)
+                articleLi.appendChild(description)
+                newsUl.appendChild(articleLi)
+                console.log(data.articles[i].title)
+            }
+        }
     })
 
 </script>
