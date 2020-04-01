@@ -320,8 +320,6 @@ document.getElementById("toggle-btn").onclick = function() {
     }
     var fetch_url = 'https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?apiKey=4ZRwHTCnCEe1HV3smhin6xJBjTP9r8zwWyZz-8rM3a4&mode=retrieveLandmarks&prox=' + localStorage.getItem('cur_lat') + ',' + localStorage.getItem('cur_lon') + ',100000';
     fetch(fetch_url, fetchData)
-
-
     .then(response => response.json())
     .then(data => {
 
@@ -333,11 +331,7 @@ document.getElementById("toggle-btn").onclick = function() {
                     td.addEventListener("click", function(){
                         window.location.href = "/landmark/" + result.Location.Name
                         console.log(result.Location.Name)
-<<<<<<< HEAD
-                     });
-=======
                     });
->>>>>>> origin/something
                     tr.appendChild(td);
                     tb.appendChild(tr);
         }
