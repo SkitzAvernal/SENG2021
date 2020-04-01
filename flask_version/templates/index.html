@@ -76,13 +76,13 @@
     {% with errors = get_flashed_messages(with_categories=true) %}
     {% if errors %}
         {% for category, error in errors %}
-        <div class = "invalid-tooltip">
+        <div class = "alert alert-danger">
             {{error}}
         </div>
         {% endfor %}
     {% endif %}
     {% endwith %}
-    <form class="form-inline my-2 my-lg-0 needs-validation" novalidate action="{{ url_for('login') }}" method="POST">
+    <form class="form-inline my-2 my-lg-0 needs-validation" action="{{ url_for('login') }}" method="POST">
       {{ loginForm.hidden_tag() }}
       <!-- <input class="form-control mr-sm-2" type="username" placeholder="Username" aria-label="Username">
       <input class="form-control mr-sm-2" type="password" placeholder="Password" aria-label="Password">
