@@ -63,6 +63,11 @@
           width:40;
       }
 
+      .popover_img {
+        height: 100px;
+        width:120px;
+      }
+
 
 
     </style>
@@ -212,11 +217,11 @@
 
       var landmarks = [];
 
-var view = new ol.View({
-    center: [16832505.12095191,-4011613.961964385],
-     zoom: 12
-});
-        var map = new ol.Map({
+  var view = new ol.View({
+      center: [16832505.12095191,-4011613.961964385],
+      zoom: 12
+  });
+  var map = new ol.Map({
    target: 'mapdiv',
    layers: [
      new ol.layer.Tile({
@@ -233,6 +238,69 @@ var view = new ol.View({
    ]
  });
 
+ map.on('singleclick', function (evt) {
+
+  var elements = document.getElementsByClassName("pin");
+  while(elements.length > 0){
+    elements[0].parentNode.removeChild(elements[0]);
+  }
+  elements = document.getElementsByClassName("landmark");
+  while(elements.length > 0){
+      elements[0].parentNode.removeChild(elements[0]);
+  }
+
+  var coord = ol.proj.transform(evt.coordinate, 'EPSG:3857', 'EPSG:4326');
+  localStorage.setItem('cur_lon', coord[0].toString());
+  localStorage.setItem('cur_lat', coord[1].toString());
+  var lm_name = "";
+  var fetch_url = "https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?prox=" + coord[1] + "%2C" + coord[0] + "%2C250&mode=retrieveAddresses&maxresults=1&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs";
+  fetch(fetch_url, fetchData)
+  .then(response => response.json())
+  .then(data => {
+    var name = data.Response.View[0].Result[0].Location.Address.District + ", " + data.Response.View[0].Result[0].Location.Address.AdditionalData[1].value;
+    var element = document.createElement('div');
+    element.classList.add("pin");
+
+    element.innerHTML = '<a id ="landmark_pop" tabindex="0" data-toggle="popover" role = "button" > <img class = "pin" src="https://img.icons8.com/color/96/000000/marker.png"/></a>';
+    var marker = new ol.Overlay({
+      position: evt.coordinate,
+      positioning: 'center-center',
+      element:element
+
+    });
+    map.getView().setCenter(evt.coordinate);
+    map.getView().setZoom(14);
+    map.addOverlay(marker);
+    $(function () {
+      var object = '<a href = "/landmark/' + name + '">' + name + '</a>';
+      var image = document.createElement("img");
+      image.classList.add("popover_img");
+      fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + name;
+      fetch(fetch_url, fetchData)
+      .then(response => response.json())
+      .then(data => {
+          image.setAttribute("src", data.items[0].srcset[0].src);
+      })
+      var cnt = document.createElement('div');
+      var row = document.createElement('div');
+      row.classList.add('row');
+      var col1 = document.createElement('div');
+      col1.classList.add('col');
+      col1.appendChild(image);
+      var col2 = document.createElement('div');
+      col2.classList.add('col'); 
+      var  para = document.createElement('p');
+      para.innerText = data.Response.View[0].Result[0].Location.Address.Label;
+      col2.appendChild(para);
+      row.appendChild(col1);
+      row.appendChild(col2);
+      cnt.appendChild(row);
+      $('#landmark_pop').popover({title: object,  trigger: 'hover | focus', html: true, content : cnt});
+    })
+  })
+  
+  
+});
 
  var geolocation = new ol.Geolocation({
     // enableHighAccuracy must be set to true to have the heading value.
@@ -311,17 +379,14 @@ document.getElementById("nearby-btn").onclick = function() {
       elements[0].parentNode.removeChild(elements[0]);
   }
 
-    console.log(localStorage.getItem('cur_lon'))
-    console.log(localStorage.getItem('cur_lat'))
 
     var fetch_url = 'https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?apiKey=4ZRwHTCnCEe1HV3smhin6xJBjTP9r8zwWyZz-8rM3a4&mode=retrieveLandmarks&prox=' + localStorage.getItem('cur_lat') + ',' + localStorage.getItem('cur_lon') + ',100000';
-    fetch(fetch_url, fetchData)
+    fetch(fetch_url)
 
 
     .then(response => response.json())
     .then(data => {
 
-        console.log(data)
         for (var result of data.Response.View[0].Result) {
                     var element = document.createElement('div');
                     element.classList.add("landmark");
@@ -331,7 +396,11 @@ document.getElementById("nearby-btn").onclick = function() {
                     content.setAttribute("tabindex" ,"0");
                     content.setAttribute("data-toggle" ,"popover");
                     content.setAttribute("role" ,"button");
-                    content.setAttribute("data-content", result.Location.Address.Label);
+                    // content
+                    
+                            
+                    
+                    // Title
                     var object = '<a href = "/landmark/' + result.Location.Name + '">' + result.Location.Name + '</a>';
                     content.setAttribute("title", object);
                     content.innerHTML = '<img class="landmark_pin" src="/static/landmark.png"/>';
@@ -342,12 +411,32 @@ document.getElementById("nearby-btn").onclick = function() {
                         element:element
 
                     });
+                    fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + result.Location.Name;   
+                    fetch(fetch_url)
+                    .then(d => {
 
+                      if (d.ok) {
+                        d => d.json();
+                        console.log( result.Location.Name)
+                        var content_element = "<div><div class = 'row'><div class = 'col'><img src = '" + d.items[0].srcset[0].src + "' class = 'popover_img'></div><div class = 'col'>" + result.Location.Address.Label + "</div></div></div>";     
+
+                        content.setAttribute("data-content", content_element); 
+                      }
+
+                      else {
+                        content.setAttribute("data-content", result.Location.Address.Label); 
+
+                      }
+                     
+                     
+                     
+                        
+                    })
+                   
                     map.addOverlay(marker);
-                    console.log(result.Location.Name)
         }
         $(function () {
-
+         
           $(".lm").popover({trigger: 'hover | focus', html: true});
         });
     })
@@ -401,7 +490,6 @@ document.getElementById("search_btn").onclick = function() {
 
   var search_landmark = document.getElementById("search-landmark").value;
   var fetch_url = 'https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext=' + search_landmark + '&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs';
-  console.log(fetch_url)
   fetch(fetch_url, fetchData)
   .then(response => response.json())
   .then(data => {
@@ -419,14 +507,35 @@ document.getElementById("search_btn").onclick = function() {
     });
     $(function () {
       var object = '<a href = "/landmark/' + search_landmark + '">' + search_landmark + '</a>';
-      $('#landmark_pop').popover({title: object,  trigger: 'hover | focus', html: true, content : data.Response.View[0].Result[0].Location.Address.Label});
+      var image = document.createElement("img");
+      image.classList.add("popover_img");
+      fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + search_landmark;
+      fetch(fetch_url, fetchData)
+      .then(response => response.json())
+      .then(data => {
+          image.setAttribute("src", data.items[0].srcset[0].src);
+      })
+      var cnt = document.createElement('div');
+      var row = document.createElement('div');
+      row.classList.add('row');
+      var col1 = document.createElement('div');
+      col1.classList.add('col');
+      col1.appendChild(image);
+      var col2 = document.createElement('div');
+      col2.classList.add('col'); 
+      var  para = document.createElement('p');
+      para.innerText = data.Response.View[0].Result[0].Location.Address.Label;
+      col2.appendChild(para);
+      row.appendChild(col1);
+      row.appendChild(col2);
+      cnt.appendChild(row);
+      $('#landmark_pop').popover({title: object,  trigger: 'hover | focus', html: true, content : cnt});
     })
     map.addOverlay(marker);
     map.getView().setCenter(ol.proj.transform([result.Longitude, result.Latitude], 'EPSG:4326','EPSG:3857'));
     map.getView().setZoom(14);
     localStorage.setItem('cur_lon', data.Response.View[0].Result[0].Location.DisplayPosition.Longitude.toString());
     localStorage.setItem('cur_lat', data.Response.View[0].Result[0].Location.DisplayPosition.Latitude.toString());
-    console.log(data.Response.View[0].Result[0].Location.DisplayPosition);
   })
 }
 
