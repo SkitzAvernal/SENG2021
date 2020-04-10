@@ -272,7 +272,7 @@
     map.getView().setZoom(14);
     map.addOverlay(marker);
     $(function () {
-      var object = '<a href = "/landmark/' + name + '">' + name + '</a>';
+      var object = '<a href = "/landmark/' + data.Response.View[0].Result[0].MatchLevel + "/" + name + '">' + name + '</a>';
       var image = document.createElement("img");
       image.classList.add("popover_img");
       fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + name;
@@ -388,6 +388,13 @@ document.getElementById("nearby-btn").onclick = function() {
     .then(data => {
 
         for (var result of data.Response.View[0].Result) {
+                    console.log(result)
+                    if (result.Location.Address.District != null) {
+                      city = result.Location.Address.District;
+                    }
+                    else {
+                      city = result.Location.Address.City;
+                    }
                     var element = document.createElement('div');
                     element.classList.add("landmark");
                     var content = document.createElement("a");
@@ -401,7 +408,7 @@ document.getElementById("nearby-btn").onclick = function() {
                             
                     
                     // Title
-                    var object = '<a href = "/landmark/' + result.Location.Name + '">' + result.Location.Name + '</a>';
+                    var object = '<a href = "/landmark/' + data.Response.View[0].Result[0].MatchLevel + "/" + result.Location.Name + ", " + city + '">' + result.Location.Name + ", " + city + '</a>';
                     content.setAttribute("title", object);
                     content.innerHTML = '<img class="landmark_pin" src="/static/landmark.png"/>';
                     element.appendChild(content);
@@ -411,26 +418,26 @@ document.getElementById("nearby-btn").onclick = function() {
                         element:element
 
                     });
-                    fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + result.Location.Name;   
+                    fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + result.Location.Name + ", " + city;   
                     fetch(fetch_url)
-                    .then(d => {
+                    .then(r => {
 
-                      if (d.ok) {
-                        d => d.json();
-                        console.log( result.Location.Name)
-                        var content_element = "<div><div class = 'row'><div class = 'col'><img src = '" + d.items[0].srcset[0].src + "' class = 'popover_img'></div><div class = 'col'>" + result.Location.Address.Label + "</div></div></div>";     
-
-                        content.setAttribute("data-content", content_element); 
+                      if (r.ok) {
+                        return r.json();
                       }
 
                       else {
                         content.setAttribute("data-content", result.Location.Address.Label); 
-
+                        return Promise.reject('some error happend maybe 404');
                       }
-                     
-                     
-                     
-                        
+                    })
+                    .then(d => {
+                      console.log('here')
+                      var content_element = "<div><div class = 'row'><div class = 'col'><img src = '" + d.items[0].srcset[0].src + "' class = 'popover_img'></div><div class = 'col'>" + result.Location.Address.Label + "</div></div></div>";     
+                      content.setAttribute("data-content", content_element);      
+                    })
+                    .catch(error => {
+                      content.setAttribute("data-content", result.Location.Address.Label); 
                     })
                    
                     map.addOverlay(marker);
@@ -444,6 +451,7 @@ document.getElementById("nearby-btn").onclick = function() {
 var tb = document.getElementById('places_tb');
 
 document.getElementById("toggle-btn").onclick = function() {
+  
     var elements = document.getElementsByClassName("places_row");
     while (elements.length > 0) {
       elements[0].parentNode.removeChild(elements[0]);
@@ -454,12 +462,19 @@ document.getElementById("toggle-btn").onclick = function() {
     .then(data => {
 
         for (var result of data.Response.View[0].Result) {
+                    city = "";
+                    if (result.Location.Address.District != null) {
+                      city = result.Location.Address.District;
+                    }
+                    else {
+                      city = result.Location.Address.City;
+                    }
                     var tr = document.createElement('tr');
                     tr.classList.add("places_row");
                     var td = document.createElement('td');
                     var link = document.createElement('a');
                     var lm_name = result.Location.Name
-                    link.setAttribute("href", "/landmark/" + result.Location.Name);
+                    link.setAttribute("href", "/landmark/" + data.Response.View[0].Result[0].MatchLevel + "/" + result.Location.Name + ", " + city );
                     link.innerHTML = result.Location.Name;
                     td.appendChild(link);
                     tr.appendChild(td);
@@ -493,6 +508,7 @@ document.getElementById("search_btn").onclick = function() {
   fetch(fetch_url, fetchData)
   .then(response => response.json())
   .then(data => {
+    console.log(data)
     var result = data.Response.View[0].Result[0].Location.DisplayPosition;
     var element = document.createElement('div');
     element.classList.add("pin");
@@ -506,10 +522,10 @@ document.getElementById("search_btn").onclick = function() {
 
     });
     $(function () {
-      var object = '<a href = "/landmark/' + search_landmark + '">' + search_landmark + '</a>';
+      var object = '<a href = "/landmark/' + data.Response.View[0].Result[0].MatchLevel + "/" + search_landmark + ", " + data.Response.View[0].Result[0].Location.Address.AdditionalData[1].value + '">' + search_landmark + ", " + data.Response.View[0].Result[0].Location.Address.AdditionalData[1].value+ '</a>';
       var image = document.createElement("img");
       image.classList.add("popover_img");
-      fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + search_landmark;
+      fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + search_landmark + ", " + data.Response.View[0].Result[0].Location.Address.AdditionalData[1].value;
       fetch(fetch_url, fetchData)
       .then(response => response.json())
       .then(data => {

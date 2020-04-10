@@ -63,6 +63,7 @@
                     <div class="col-2"></div>
                     <div class="d-flex justify-content-center p-5 col-8">
                         <h1 id= "lm_name" class="float-center">{{ name }}</h1>
+                        <h1 id= "news_name" class="float-center" style="display: none;">{{ news_name }}</h1>
                     </div>
                     <div class="col-2 p-4">
                         {% if current_user.is_authenticated %}
@@ -82,10 +83,11 @@
 
                                 </div>
                                 <ul class = "list-group">
+                                    {% for item in events %}
                                     <li class = "list-group-item">
-                                       No Events currently, due to COVID-19 situation.
+                                       {{ item }}
                                     </li>
-                                    
+                                    {% endfor %}
                                 </ul>
                         </div>
                     </div>
@@ -128,7 +130,7 @@
     .then(response => response.json())
     .then(data => {
         if (data.extract == null) {
-            about.innerText = "No Imformation about this landmark.";
+            about.innerText = "No Information about this landmark.";
         }
         else {
             about.innerText = data.extract;
@@ -141,15 +143,22 @@
     fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + document.getElementById("lm_name").innerHTML;
     console.log(fetch_url)
     fetch(fetch_url, fetchData)
-    .then(response => response.json())
+    .then(response => {
+        if (response.ok) {
+            return response.json()
+        } else {
+            return Promise.reject('some error happend maybe 404') 
+        }
+    })
     .then(data => {
         console.log(data)
         image.setAttribute("src", data.items[0].srcset[0].src);
     })
+    .catch(error => console.log('error is', error));
 
     var lm_name = document.getElementById("lm_name").innerHTML;
     apiKey = "e8bf85737a554b158b25de6857b8de10"
-    newsAPIurl = "https://newsapi.org/v2/everything?qintitle=" + lm_name + "&apiKey=" + apiKey
+    newsAPIurl = "https://newsapi.org/v2/everything?qintitle=" + document.getElementById("news_name").innerHTML + "&apiKey=" + apiKey
     fetch(newsAPIurl, fetchData)
     .then(response => response.json())
     .then(data => {

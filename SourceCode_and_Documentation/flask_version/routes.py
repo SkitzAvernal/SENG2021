@@ -3,6 +3,7 @@ from app import app, db, login
 from flask_login import current_user, login_user, logout_user 
 from user import User 
 from forms import SignUpForm, LoginForm
+from webscraper import Web_scraper
 
 @app.route('/')
 @app.route('/index/')
@@ -25,9 +26,15 @@ def index():
                            zoom = zoom, 
                            loginForm = loginForm)
 
-@app.route('/landmark/<lm_name>')
-def landmark(lm_name):
-    return render_template('landmark.html', name = lm_name)
+@app.route('/landmark/<category>/<lm_name>')
+def landmark(category, lm_name):
+    # use the web scraper here
+    search_name = lm_name
+    news_name = lm_name.split(',')[0]
+    if category == "city":
+        search_name = lm_name.split(',')[0]
+    scraper = Web_scraper(search_name)
+    return render_template('landmark.html', name = search_name, events = scraper.get_events(), news_name = news_name)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
