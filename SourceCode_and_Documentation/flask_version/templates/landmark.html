@@ -7,7 +7,8 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
     <title>Landmark</title>
 
@@ -36,6 +37,66 @@
             height:100%;
             width:100%;
         }
+
+        div.stars {
+            width: 270px;
+            display: inline-block;
+        }
+
+        input.star { display: none; }
+
+        label.star {
+            float: right;
+            padding: 10px;
+            font-size: 20px;
+            color: #444;
+            transition: all .2s;
+        }
+
+        input.star:checked ~ label.star:before {
+            content: '\f005';
+            color: #FD4;
+            transition: all .25s;
+        }
+
+        input.star-5:checked ~ label.star:before {
+            color: #FE7;
+            text-shadow: 0 0 20px #952;
+        }
+
+        input.star-1:checked ~ label.star:before { color: #F62; }
+
+        label.star:hover { transform: rotate(-15deg) scale(1.3); }
+
+        label.star:before {
+            content: '\f006';
+            font-family: FontAwesome;
+        }
+
+        .stars-outer {
+            display: inline-block;
+            position: relative;
+        font-family: FontAwesome;
+        }
+        
+        .stars-outer::before {
+            content: "\f006 \f006 \f006 \f006 \f006";
+        }
+        
+        .stars-inner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 0;
+        }
+        
+        .stars-inner::before {
+            content: "\f005 \f005 \f005 \f005 \f005";
+            color: #f8ce0b;
+        }
+
     </style>
 </head>
 <body>
@@ -66,7 +127,7 @@
                     </div>
                     <div class="col-2 p-4">
                         {% if current_user.is_authenticated %}
-                        <button class="btn btn-primary float-right" id="bookmarkBtn">Bookmark</button>
+                        <button class="btn btn-primary float-right" id="bookmark_btn">Bookmark</button>
                         {% endif %}
                     </div>
                 </div>
@@ -78,8 +139,7 @@
                         </div>
                         <div class = "col border border-primary bg-white text-dark">
                                 <div class="d-flex justify-content-left p-2">
-                                        <h4 >Events</h4>
-
+                                    <h4>Events</h4>
                                 </div>
                                 <ul class = "list-group">
                                     <li class = "list-group-item">
@@ -92,29 +152,123 @@
                     <div class = "row p-2">
                         <div class = "col border border-primary bg-white text-dark ">
                                 <div class="d-flex justify-content-left p-2">
-                                        <h4 >About</h4>
+                                    <h4>About</h4>
                                 </div>
                                 <div class="container-fluid">
                                     <p id = "about_element">
-
                                     </p>
                                 </div>
                         </div>
                     </div>
                     <div class = "row p-2">
-                            <div class = "col border border-primary bg-white text-dark ">
-                                    <div class="d-flex justify-content-left p-2">
-                                            <h4 >News</h4>
-                                    </div>
-                                    <div class="container-fluid">
-                                        <ul class="list-group" id="news_list"></ul>
-                                        <br>
-                                    </div>
+                        <div class = "col border border-primary bg-white text-dark ">
+                            <div class="d-flex justify-content-left p-2">
+                                <h4>News</h4>
+                            </div>
+                            <div class="container-fluid">
+                                <ul class="list-group" id="news_list"></ul>
+                                <br>
                             </div>
                         </div>
+                    </div>
+                    <div class = "row p-2">
+                        <div class = "col border border-primary bg-white text-dark ">
+                            <div class="d-flex flex-row justify-content-between">
+                                <div class="p-2">
+                                    <h4>Reviews</h4>
+                                </div>
+                                <div class="p-2">
+                                    {% if current_user.is_authenticated %}
+                                    <button class="btn btn-primary" id="review_btn" data-toggle="modal" data-target="#review_modal">Add review</button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="container-fluid">
+                                <ul class="list-group" id="reviews_list">
+                                    {% if reviews %}
+    
+                                    {% for review in reviews %}
+                                    <li class="list-group-item">
+                                        <h5>{{ review.username }}</h5>
+                                        <div class="row px-3" style="display: inline-block;">
+                                            <div class="stars-outer">
+                                                {% set percent = review.rating * 20 %}
+                                                <div class="stars-inner" style="width: {{ percent }}%"></div>
+                                            </div>
+                                            <span class="align-bottom" style="margin-left: 15px; font-size: small;">
+                                                {{ review.timestamp.strftime("%d-%m-%Y at %I:%M %p") }}
+                                            </span>
+                                        </div>
+                                        <p>
+                                            {{ review.body }}
+                                            <br>
+                                        </p>
+                                    </li>
+                                    <br>
+                                    {% endfor %}
+    
+                                    {% else %}
+                                    <li class="list-group-item">No reviews for this landmark</li>
+                                    {% endif %}
+
+                                </ul>
+                                <br>
+                            </div>
+                        </div>
+                    </div>
 
                 </div>
 
+                <div class="modal fade" id="review_modal" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4>Add a review for {{ name }}</h4>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                {% with errors = get_flashed_messages(with_categories=true) %}
+                                {% if errors %}
+                                    {% for category, error in errors %}
+                                    <div class="alert alert-danger">
+                                        {{error}}
+                                    </div>
+                                    {% endfor %}
+                                {% endif %}
+                                {% endwith %}
+                                <form action="{{ url_for('review') }}" method="POST">
+                                    {{ reviewForm.hidden_tag() }}
+                                    <div class="form-group row m-0">
+                                        <div class="stars col-12 d-flex flex-row-reverse justify-content-center h-50">
+                                            <input class="star star-5" id="star-5" type="radio" name="rating" value="5" required/>
+                                            <label class="star star-5" for="star-5"></label>
+                                            <input class="star star-4" id="star-4" type="radio" name="rating" value="4"/>
+                                            <label class="star star-4" for="star-4"></label>
+                                            <input class="star star-3" id="star-3" type="radio" name="rating" value="3"/>
+                                            <label class="star star-3" for="star-3"></label>
+                                            <input class="star star-2" id="star-2" type="radio" name="rating" value="2"/>
+                                            <label class="star star-2" for="star-2"></label>
+                                            <input class="star star-1" id="star-1" type="radio" name="rating" value="1"/>
+                                            <label class="star star-1" for="star-1"></label>
+                                        </div>
+                                    </div>
+                                    <div class="option-error"></div>
+                                    <div class="form-group">
+                                        <!-- {{ reviewForm.body.label }} -->
+                                        <!-- <label>Review description</label> -->
+                                        {{ reviewForm.body(class="form-control", placeholder="Share your experience at this landmark") }}
+                                        {% for error in reviewForm.body.errors %}
+                                        <span style="color: red;">{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    <input type="hidden" name="landmark_name" value="{{ name }}">
+                                    <!-- {{ reviewForm.landmark(value="{{ name }}")}} -->
+                                    {{ reviewForm.submit(class="btn btn-primary add-review") }}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
 
@@ -153,7 +307,7 @@
     fetch(newsAPIurl, fetchData)
     .then(response => response.json())
     .then(data => {
-        console.log("newapi")
+        console.log("newsapi")
         console.log(data)
         newsUl = document.getElementById('news_list')
         if (data.totalResults == 0) {
@@ -183,8 +337,16 @@
         }
     })
 
-    $("#bookmarkBtn").click(function() {
+    $("#bookmark_btn").click(function() {
         alert("Bookmark has been added");
+    });
+
+    $(".add-review").click(function() {
+        $(".option-error").html("");
+        if (!$("input[name='rating']:checked").val()) {
+            $(".option-error").html("Please rate this landmark");
+            $(".option-error").addClass("alert alert-danger")
+        }
     });
 
 </script>

@@ -1,8 +1,10 @@
 from flask import Flask, render_template, request, redirect, url_for, flash 
 from app import app, db, login 
 from flask_login import current_user, login_user, logout_user 
-from user import User 
-from forms import SignUpForm, LoginForm
+from models import User, Review 
+from forms import SignUpForm, LoginForm, ReviewForm
+from sqlalchemy import desc
+from datetime import datetime
 
 @app.route('/')
 @app.route('/index/')
@@ -27,7 +29,10 @@ def index():
 
 @app.route('/landmark/<lm_name>')
 def landmark(lm_name):
-    return render_template('landmark.html', name = lm_name)
+    reviewForm = ReviewForm()
+    reviews = Review.query.filter_by(landmark=lm_name).order_by(desc(Review.timestamp)).all()
+    # print(reviews)
+    return render_template('landmark.html', name = lm_name, reviewForm=reviewForm, reviews=reviews)
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
@@ -67,3 +72,24 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index')) 
+
+@app.route('/review', methods=['POST'])
+def review():
+    reviewForm = ReviewForm()
+
+    if not current_user.is_authenticated:
+        return redirect(request.referrer)
+
+    if reviewForm.validate_on_submit():
+        landmark = request.form.get('landmark_name')
+        rating = request.form['rating']
+        print('rating is', rating)
+        # print('body', reviewForm.body.data)
+        # print('username', current_user.username)
+        # print('landmark', landmark)
+        review = Review(body=reviewForm.body.data, username=current_user.username, landmark=landmark, timestamp=datetime.now(), rating=rating)
+        db.session.add(review)
+        db.session.commit()
+        return redirect(request.referrer)
+
+    return render_template(request.referrer)
