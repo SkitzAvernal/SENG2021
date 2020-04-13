@@ -1,7 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, flash 
-from app import app, db, login 
-from flask_login import current_user, login_user, logout_user 
-from user import User 
+from flask import Flask, render_template, request, redirect, url_for, flash
+from app import app, db, login
+from flask_login import current_user, login_user, logout_user
+from user import User
 from forms import SignUpForm, LoginForm
 from webscraper import Web_scraper
 
@@ -23,7 +23,7 @@ def index():
     return render_template('index.html',
                            lon = lon,
                            lat = lat,
-                           zoom = zoom, 
+                           zoom = zoom,
                            loginForm = loginForm)
 
 @app.route('/landmark/<category>/<lm_name>')
@@ -61,7 +61,7 @@ def login():
         return render_template('index.html', loginForm=loginForm)
 
     if loginForm.validate_on_submit():
-        user = User.query.filter_by(username=loginForm.username.data).first() 
+        user = User.query.filter_by(username=loginForm.username.data).first()
         if user is None or not user.check_password(loginForm.password.data):
             flash('Invalid username or password')
             return render_template('index.html', loginForm=loginForm)
@@ -73,4 +73,4 @@ def login():
 @app.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('index')) 
+    return redirect(url_for('index'))

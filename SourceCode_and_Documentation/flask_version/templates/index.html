@@ -289,7 +289,7 @@
       col1.classList.add('col');
       col1.appendChild(image);
       var col2 = document.createElement('div');
-      col2.classList.add('col'); 
+      col2.classList.add('col');
       var  para = document.createElement('p');
       para.innerText = data.Response.View[0].Result[0].Location.Address.Label;
       col2.appendChild(para);
@@ -299,8 +299,8 @@
       $('#landmark_pop').popover({title: object,  trigger: 'hover | focus', html: true, content : cnt});
     })
   })
-  
-  
+
+
 });
 
  var geolocation = new ol.Geolocation({
@@ -333,6 +333,8 @@
   });
 
   document.getElementById('random').addEventListener('click', function () {
+    console.log("Hello");
+    /*
     while(elements.length > 0){
       elements[0].parentNode.removeChild(elements[0]);
     }
@@ -340,14 +342,14 @@
     while(elements.length > 0){
       elements[0].parentNode.removeChild(elements[0]);
     }
+    */
     var rand = getNumber();
-    $.getJSON('places.json', function(data) {
-      var cur_lat = data.places[rand].lati;
-      var cur_lon = data.places[rand].long;
-      localStorage.setItem('cur_lon', cur_lon.toString());
-      localStorage.setItem('cur_lat', cur_lat.toString());
-      map.getView().setCenter(coordinates);
-      map.getView().setZoom(14);
+    $.getJSON('static/places.json', function(data) {
+     console.log(rand)
+     var rando_location = data.places[rand]
+     console.log(rando_location)
+     document.getElementById("search-landmark").value = rando_location;
+     document.getElementById("search_btn").click();
     })
   })
 
@@ -422,9 +424,9 @@ document.getElementById("nearby-btn").onclick = function() {
                     content.setAttribute("data-toggle" ,"popover");
                     content.setAttribute("role" ,"button");
                     // content
-                    
-                            
-                    
+
+
+
                     // Title
                     var object = '<a href = "/landmark/' + data.Response.View[0].Result[0].MatchLevel + "/" + result.Location.Name + ", " + city + '">' + result.Location.Name + ", " + city + '</a>';
                     content.setAttribute("title", object);
@@ -436,7 +438,7 @@ document.getElementById("nearby-btn").onclick = function() {
                         element:element
 
                     });
-                    fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + result.Location.Name + ", " + city;   
+                    fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + result.Location.Name + ", " + city;
                     fetch(fetch_url)
                     .then(r => {
 
@@ -445,23 +447,23 @@ document.getElementById("nearby-btn").onclick = function() {
                       }
 
                       else {
-                        content.setAttribute("data-content", result.Location.Address.Label); 
+                        content.setAttribute("data-content", result.Location.Address.Label);
                         return Promise.reject('some error happend maybe 404');
                       }
                     })
                     .then(d => {
                       console.log('here')
-                      var content_element = "<div><div class = 'row'><div class = 'col'><img src = '" + d.items[0].srcset[0].src + "' class = 'popover_img'></div><div class = 'col'>" + result.Location.Address.Label + "</div></div></div>";     
-                      content.setAttribute("data-content", content_element);      
+                      var content_element = "<div><div class = 'row'><div class = 'col'><img src = '" + d.items[0].srcset[0].src + "' class = 'popover_img'></div><div class = 'col'>" + result.Location.Address.Label + "</div></div></div>";
+                      content.setAttribute("data-content", content_element);
                     })
                     .catch(error => {
-                      content.setAttribute("data-content", result.Location.Address.Label); 
+                      content.setAttribute("data-content", result.Location.Address.Label);
                     })
-                   
+
                     map.addOverlay(marker);
         }
         $(function () {
-         
+
           $(".lm").popover({trigger: 'hover | focus', html: true});
         });
     })
@@ -469,7 +471,7 @@ document.getElementById("nearby-btn").onclick = function() {
 var tb = document.getElementById('places_tb');
 
 document.getElementById("toggle-btn").onclick = function() {
-  
+
     var elements = document.getElementsByClassName("places_row");
     while (elements.length > 0) {
       elements[0].parentNode.removeChild(elements[0]);
@@ -511,9 +513,9 @@ function showPosition(position) {
 
 function getNumber() {
   var minNumber = 0; // The minimum number you want
-  var maxNumber = 4; // The maximum number you want, alter as we change the json file
+  var maxNumber = 3; // The maximum number you want, alter as we change the json file
   var randomnumber = Math.floor(Math.random() * (maxNumber + 1) + minNumber); // Generates random number
-  return randomnumber; 
+  return randomnumber;
 }
 
 document.getElementById("search_btn").onclick = function() {
@@ -563,7 +565,7 @@ document.getElementById("search_btn").onclick = function() {
       col1.classList.add('col');
       col1.appendChild(image);
       var col2 = document.createElement('div');
-      col2.classList.add('col'); 
+      col2.classList.add('col');
       var  para = document.createElement('p');
       para.innerText = data.Response.View[0].Result[0].Location.Address.Label;
       col2.appendChild(para);
