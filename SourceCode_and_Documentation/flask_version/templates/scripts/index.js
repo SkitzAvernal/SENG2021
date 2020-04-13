@@ -66,7 +66,13 @@ var fetchData = {
     }
   }
 
-
+  function randomNumber() {
+   var minNumber = 0; // The minimum number you want
+   var maxNumber = 5; // The maximum number you want
+   var randomnumber = Math.floor(Math.random() * (maxNumber + 1) + minNumber); // Generates random number
+   $('#myNumber').html(randomnumber); // Sets content of <div> to number
+   return false; // Returns false just to tidy everything up
+}
 
   fetch('https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?apiKey=4ZRwHTCnCEe1HV3smhin6xJBjTP9r8zwWyZz-8rM3a4&mode=retrieveLandmarks&prox=37.7442,-119.5931,1000', fetchData)
   .then(response => response.json())

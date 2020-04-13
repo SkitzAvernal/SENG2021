@@ -157,8 +157,9 @@
 <div class = "content">
   <div id="mapdiv" class = "mapdiv"></div>
     <div style = "position: absolute; top: 80px; left: 50px; padding: 5px;">
+            <button class = "btn btn-primary"><i class="material-icons " id = "random">take_me</i></button>
             <button class = "btn btn-primary"><i class="material-icons " id = "nearby-btn">near_me</i></button>
-            <button class = " btn btn-primary"><i class="material-icons " id = "current_loc">my_location</i></button>
+            <button class = "btn btn-primary"><i class="material-icons " id = "current_loc">my_location</i></button>
     </div>
     <div id="search"  style="position: absolute; top: 80px; right: 10px; padding: 5px">
 
@@ -331,7 +332,24 @@
 
   });
 
-
+  document.getElementById('random').addEventListener('click', function () {
+    while(elements.length > 0){
+      elements[0].parentNode.removeChild(elements[0]);
+    }
+    var elements = document.getElementsByClassName("pin");
+    while(elements.length > 0){
+      elements[0].parentNode.removeChild(elements[0]);
+    }
+    var rand = getNumber();
+    $.getJSON('places.json', function(data) {
+      var cur_lat = data.places[rand].lati;
+      var cur_lon = data.places[rand].long;
+      localStorage.setItem('cur_lon', cur_lon.toString());
+      localStorage.setItem('cur_lat', cur_lat.toString());
+      map.getView().setCenter(coordinates);
+      map.getView().setZoom(14);
+    })
+  })
 
 var accuracyFeature = new ol.Feature();
 geolocation.on('change:accuracyGeometry', function() {
@@ -489,6 +507,13 @@ function getLocation() {
 
 function showPosition(position) {
   console.log(position.coords.latitude + " ," +  position.coords.longitude);
+}
+
+function getNumber() {
+  var minNumber = 0; // The minimum number you want
+  var maxNumber = 4; // The maximum number you want, alter as we change the json file
+  var randomnumber = Math.floor(Math.random() * (maxNumber + 1) + minNumber); // Generates random number
+  return randomnumber; 
 }
 
 document.getElementById("search_btn").onclick = function() {

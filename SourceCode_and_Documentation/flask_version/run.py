@@ -1,4 +1,4 @@
-from routes import app
+cfrom routes import app
 
 from app import app, db 
 from user import User 
