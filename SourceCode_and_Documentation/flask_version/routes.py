@@ -27,9 +27,6 @@ def index():
                            zoom = zoom, 
                            loginForm = loginForm)
 
-@app.route('/getmethod/<jsdata>')
-def get_javascript_data(jsdata):
-    return jsdata
 
 @app.route('/index/postmethod', methods = ['POST'])
 @app.route('/postmethod', methods = ['POST'])
