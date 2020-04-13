@@ -17,7 +17,7 @@
             background-repeat:no-repeat;
             background-size:cover;
             opacity: 0.4;
-            height: 100%;
+            height: 100vh;
             width: 100%;
             position : relative;
             top: 20;
@@ -72,10 +72,10 @@
                     </div>
                 </div>
 
-                <div class="container p-5">
+                <div class="container p-5 ">
                     <div class = "row" >
                         <div class = "col">
-                            <img id = "lm_img" class = "img-fluid">
+                            <img src = "{{ image }}" id = "lm_img" class = "img-fluid">
                         </div>
                         <div class = "col border border-primary bg-white text-dark">
                                 <div class="d-flex justify-content-left p-2">
@@ -98,7 +98,7 @@
                                 </div>
                                 <div class="container-fluid">
                                     <p id = "about_element">
-
+                                        {{ desc }}
                                     </p>
                                 </div>
                         </div>
@@ -137,7 +137,7 @@
         }    
     })
 
-    // Image
+    Image
     var image = document.getElementById("lm_img");
     console.log(document.getElementById("lm_name").innerHTML)
     fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + document.getElementById("lm_name").innerHTML;
