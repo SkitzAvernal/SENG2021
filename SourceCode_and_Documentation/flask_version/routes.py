@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, Response, jsonify
-from app import app, db, login 
-from flask_login import current_user, login_user, logout_user 
-from user import User 
+from app import app, db, login
+from flask_login import current_user, login_user, logout_user
+from user import User
 from forms import SignUpForm, LoginForm
 from webscraper import *
 import random, json
@@ -24,7 +24,7 @@ def index():
     return render_template('index.html',
                            lon = lon,
                            lat = lat,
-                           zoom = zoom, 
+                           zoom = zoom,
                            loginForm = loginForm)
 
 
@@ -35,7 +35,7 @@ def get_post_javascript_data():
     match_level = jsdata['jsdata']['match_level']
     landmark = jsdata['jsdata']['landmark']
 
-    ###################### fetch landmark coordinate ####################################### 
+    ###################### fetch landmark coordinate #######################################
     # fetch_url =  f'https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext={landmark}&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs'
     # response = requests.get(fetch_url)
     # data = response.json()
@@ -45,12 +45,12 @@ def get_post_javascript_data():
     # match_level = data['Response']['View'][0]['Result'][0]['MatchLevel']
     # state = data['Response']['View'][0]['Result'][0]['Location']['Address']['AdditionalData'][1]['value']
     # address = data['Response']['View'][0]['Result'][0]['Location']['Address']['Label']
-    
+
     ###################### fetch landmark description using webscraper #####################
     search_name = landmark
     if match_level == "city":
         search_name = landmark.split(',')[0]
-    events_scraper = Events_scraper(search_name)   
+    events_scraper = Events_scraper(search_name)
     info_scraper = Info_scraper(landmark)
     img_src = info_scraper.get_image()
     # description = info_scraper.get_description()
@@ -91,7 +91,7 @@ def get_post_javascript_data():
     #     search_name = landmark
     #     if match_level == "city":
     #         search_name = landmark.split(',')[0]
-    #     events_scraper = Events_scraper(search_name)   
+    #     events_scraper = Events_scraper(search_name)
     #     info_scraper = Info_scraper(landmark)
     #     img_src = info_scraper.get_image()
     #     # description = info_scraper.get_description()
@@ -116,7 +116,7 @@ def get_post_javascript_data():
     # })
     print (res_dict)
     return jsonify(res_dict)
-	
+
 
 @app.route('/landmark/<category>/<lm_name>')
 def landmark(category, lm_name):
@@ -125,13 +125,13 @@ def landmark(category, lm_name):
     news_name = lm_name.split(',')[0]
     if category == "city":
         search_name = lm_name.split(',')[0]
-    events_scraper = Events_scraper(search_name)   
+    events_scraper = Events_scraper(search_name)
     info_scraper = Info_scraper(lm_name)
-    return render_template('landmark.html', 
-                            name = search_name, 
-                            image = info_scraper.get_image(), 
-                            desc = info_scraper.get_description(), 
-                            events = events_scraper.get_events(), 
+    return render_template('landmark.html',
+                            name = search_name,
+                            image = info_scraper.get_image(),
+                            desc = info_scraper.get_description(),
+                            events = events_scraper.get_events(),
                             news_name = news_name)
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -159,7 +159,7 @@ def login():
         return render_template('index.html', loginForm=loginForm)
 
     if loginForm.validate_on_submit():
-        user = User.query.filter_by(username=loginForm.username.data).first() 
+        user = User.query.filter_by(username=loginForm.username.data).first()
         if user is None or not user.check_password(loginForm.password.data):
             flash('Invalid username or password')
             return render_template('index.html', loginForm=loginForm)
@@ -171,4 +171,4 @@ def login():
 @app.route('/logout')
 def logout():
     logout_user()
-    return redirect(url_for('index')) 
+    return redirect(url_for('index'))
