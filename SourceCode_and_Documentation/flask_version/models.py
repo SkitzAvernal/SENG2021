@@ -35,3 +35,14 @@ class Review(db.Model):
 
     def __repr__(self):
         return '<Review by {} on {}>'.format(self.body, self.landmark) 
+
+
+class Bookmark(db.Model):
+	__tablename__ = 'bookmark'
+	
+	id = db.Column(db.Integer, primary_key=True)
+	username = db.Column(db.Integer, db.ForeignKey('user.username'), nullable=False)
+	landmark = db.Column(db.String(40), nullable=False)
+
+	def __repr__(self):
+		return '{}'.format(self.landmark)

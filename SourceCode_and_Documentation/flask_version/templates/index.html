@@ -144,7 +144,19 @@
         </button>
       </div>
       <div class="modal-body">
-        You do not have any bookmarks.
+        {% if bookmarks %}
+          <ul class ="list-group" id="bookmark_list">
+            {% for bookmark in bookmarks %}
+              <li class="list-group-item" id="{{'bookmark-' + bookmark.landmark}}">
+                <a href="{{url_for('landmark', lm_name=bookmark.landmark)}}">{{bookmark.landmark}}</a>
+                <button type="button" class="close" aria-label="Close">&times;
+                </button>
+              </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+            You do not have any bookmarks.
+          {% endif %}
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -467,6 +479,8 @@ document.getElementById("toggle-btn").onclick = function() {
         }
     })
 }
+
+
 
 function getLocation() {
     navigator.geolocation.getCurrentPosition(showPosition);

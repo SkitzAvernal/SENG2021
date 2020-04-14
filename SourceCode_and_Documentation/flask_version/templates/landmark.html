@@ -127,7 +127,10 @@
                     </div>
                     <div class="col-2 p-4">
                         {% if current_user.is_authenticated %}
-                        <button class="btn btn-primary float-right" id="bookmark_btn">Bookmark</button>
+                            <form id="bookmark_form">
+                                <button type="submit" class="btn btn-primary float-right" id="bookmark_btn">Bookmark</button>
+                                <input type="hidden" name="landmark_name" value="{{ name }}"> 
+                            </form>
                         {% endif %}
                     </div>
                 </div>
@@ -337,7 +340,12 @@
         }
     })
 
-    $("#bookmark_btn").click(function() {
+    $("#bookmark_btn").click(function(e) {
+        e.preventDefault()
+        var landmark = document.getElementById("lm_name").innerHTML;
+        $.post("/bookmark", {
+            landmark: landmark
+        });
         alert("Bookmark has been added");
     });
 
