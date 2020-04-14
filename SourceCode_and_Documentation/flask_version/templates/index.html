@@ -157,7 +157,7 @@
 <div class = "content">
   <div id="mapdiv" class = "mapdiv"></div>
     <div style = "position: absolute; top: 80px; left: 50px; padding: 5px;">
-            <button class = "btn btn-primary"><i class="material-icons " id = "random">take_me</i></button>
+            <button class = "btn btn-primary"><i class="material-icons " id = "random">explore</i></button>
             <button class = "btn btn-primary"><i class="material-icons " id = "nearby-btn">near_me</i></button>
             <button class = "btn btn-primary"><i class="material-icons " id = "current_loc">my_location</i></button>
     </div>
@@ -344,7 +344,7 @@
     }
     */
     var rand = getNumber();
-    $.getJSON('static/places.json', function(data) {
+    $.getJSON('/static/places.json', function(data) {
      console.log(rand)
      var rando_location = data.places[rand]
      console.log(rando_location)
