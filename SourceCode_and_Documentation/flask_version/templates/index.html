@@ -561,6 +561,10 @@ function remove_bookmark(el, landmark){
       landmark : landmark
   });
   elem.parentNode.removeChild(elem);
+  var list = document.getElementById('bookmark_list')
+  if (list.childElementCount == 0){
+    list.parentNode.innerHTML = "You do not have any bookmarks."
+  }
 };
     </script>
 </body>
