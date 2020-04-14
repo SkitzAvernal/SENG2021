@@ -147,9 +147,9 @@
         {% if bookmarks %}
           <ul class ="list-group" id="bookmark_list">
             {% for bookmark in bookmarks %}
-              <li class="list-group-item" id="{{'bookmark-' + bookmark.landmark}}">
+              <li class="list-group-item" id="{{'bookmark-' + bookmark.landmark}}" >
                 <a href="{{url_for('landmark', lm_name=bookmark.landmark)}}">{{bookmark.landmark}}</a>
-                <button type="button" class="close" aria-label="Close">&times;
+                <button type="button" onclick="remove_bookmark(this, landmark = '{{bookmark.landmark}}')" class="close" aria-label="Close">&times;
                 </button>
               </li>
             {% endfor %}
@@ -160,7 +160,9 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <!--{% if bookmarks %}
+          <button type="button" id="save_bookmark" class="btn btn-primary">Save changes</button>
+        {% endif %}-->
       </div>
     </div>
   </div>
@@ -342,7 +344,6 @@
    map.getView().setZoom(14);
 
   });
-
 
 
 var accuracyFeature = new ol.Feature();
@@ -553,8 +554,14 @@ document.getElementById("search_btn").onclick = function() {
   })
 }
 
-
-
+//Bookmark functionality
+function remove_bookmark(el, landmark){
+  var elem = document.getElementById('bookmark-' + landmark);
+  $.post("/rm_bookmark", {
+      landmark : landmark
+  });
+  elem.parentNode.removeChild(elem);
+};
     </script>
 </body>
 

@@ -122,3 +122,16 @@ def bookmark():
     db.session.commit()
 
     return redirect(request.referrer)
+
+@app.route('/rm_bookmark', methods=['POST'])
+def rm_bookmark():
+    if not current_user.is_authenticated:
+        return redirect(request.referrer)
+
+    landmark = request.form['landmark']
+    #print('user is {} nd landmark is{}'.format(current_user.username, landmark))
+    bookmark = Bookmark.query.filter_by(username=current_user.username, landmark=landmark).first()
+   # print(bookmark)
+    db.session.delete(bookmark)
+    db.session.commit()
+    return redirect(request.referrer)
