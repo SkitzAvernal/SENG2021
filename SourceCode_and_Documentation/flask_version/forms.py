@@ -29,3 +29,10 @@ class ReviewForm(FlaskForm):
     body = TextAreaField('Body', validators=[DataRequired(), Length(max=200)]) 
     landmark = HiddenField('Landmark')
     submit = SubmitField('Add review')
+
+class PlannerForm(FlaskForm):
+    landmark1 = StringField('Landmark 1', validators=[DataRequired()])
+    landmark2 = StringField('Landmark 2', validators=[DataRequired()])
+    landmark3 = StringField('Landmark 3')
+    landmark4 = StringField('Landmark 4')
+    submit = SubmitField('Plan trip')

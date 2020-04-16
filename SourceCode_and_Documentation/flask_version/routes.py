@@ -2,12 +2,12 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 from app import app, db, login 
 from flask_login import current_user, login_user, logout_user 
 from models import User, Review, Bookmark
-from forms import SignUpForm, LoginForm, ReviewForm
+from forms import SignUpForm, LoginForm, ReviewForm, PlannerForm
 from sqlalchemy import desc
 from datetime import datetime
 
-@app.route('/')
-@app.route('/index/')
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/index/', methods=['GET', 'POST'])
 def index():
     lon = 16832505.12095191
 
@@ -21,6 +21,16 @@ def index():
         zoom = float(request.args.get('zoom'))
     
     loginForm = LoginForm()
+    plannerForm = PlannerForm()
+
+    if plannerForm.validate_on_submit():
+        print(plannerForm.landmark1.data)
+        print(plannerForm.landmark2.data)
+        if plannerForm.landmark3.data:
+            print(plannerForm.landmark3.data)
+        if plannerForm.landmark4.data:
+            print(plannerForm.landmark4.data)
+        return redirect(url_for('index'))
     
     if current_user.is_authenticated:
         bookmarks = Bookmark.query.filter_by(username=current_user.username).order_by(Bookmark.landmark).all()
@@ -29,13 +39,15 @@ def index():
 				        	lat = lat, 
 				        	zoom = zoom, 
 				        	loginForm = loginForm,
-				        	bookmarks=bookmarks)
+				        	bookmarks=bookmarks, 
+                            plannerForm = plannerForm)
 
     return render_template('index.html',
                            lon = lon,
                            lat = lat,
                            zoom = zoom, 
-                           loginForm = loginForm)
+                           loginForm = loginForm,
+                           plannerForm = plannerForm)
 
 
 @app.route('/landmark/<lm_name>')
