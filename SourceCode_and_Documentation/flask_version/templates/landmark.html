@@ -25,6 +25,11 @@
 
         }
 
+        .li_item:hover {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            cursor: pointer;
+        }
+
         .main{
             position: relative;
 
@@ -36,6 +41,14 @@
             height:100%;
             width:100%;
         }
+        a { text-decoration: none;
+            color: black;}         /* Unvisited link  */
+        a:visited { text-decoration: none;
+            color: black;} /* Visited link    */
+        a:hover { text-decoration: none;
+                color: black;}   /* Mouse over link */
+        a:active { text-decoration: none;
+                color: black;}  /* Selected link   */
     </style>
 </head>
 <body>
@@ -78,17 +91,29 @@
                             <img src = "{{ image }}" id = "lm_img" class = "img-fluid">
                         </div>
                         <div class = "col border border-primary bg-white text-dark">
-                                <div class="d-flex justify-content-left p-2">
-                                        <h4 >Events</h4>
-
+                            <div class="container-fluid d-flex"> 
+                                <div class="p-2">
+                                    <h4 >Events</h4>
                                 </div>
-                                <ul class = "list-group">
-                                    {% for item in events %}
-                                    <li class = "list-group-item">
-                                       {{ item }}
+                                <div class="mr-auto p-2">
+                                    <ul class="pagination">
+                                        <li class="page-item">
+                                            <a class="page-link material-icons" href="#">navigate_next</a>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                            <ul class = "list-group  d-block">
+                                {% for item in events %}
+                                <a href="{{item.url}}">
+                                    <li class = "list-group-item li_item">
+                                        <small style="color:rgb(209, 65, 12);">{{item.date}}</small>
+                                        <h5> {{item.title}} </h5>
+                                        <p style="text-overflow: ellipsis">{{item.addr}}</p>
                                     </li>
-                                    {% endfor %}
-                                </ul>
+                                </a>
+                                {% endfor %}
+                            </ul>
                         </div>
                     </div>
                     <div class = "row p-2">

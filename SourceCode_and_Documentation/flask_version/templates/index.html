@@ -68,7 +68,27 @@
         height: 100px;
         width:120px;
       }
+      #loading {
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        position: fixed;
+        display: block;
+        opacity: 0.7;
+        background-color: #fff;
+        z-index: 99;
+        text-align: center;
+      }
 
+      #loading-image {
+        position: absolute;
+        top: 40%;
+        left: 45%;
+        z-index: 100;
+      }
+
+    
 
 
     </style>
@@ -155,11 +175,24 @@
   </div>
 </div>
 
+<!-- <div id="loading" style="visibility:hidden" class="row justify-content-center align-items-center h-100">
+  <div class="col col-sm-6 col-md-6 col-lg-4 col-xl-3">
+    <img id="loading-image" src="/static/loader.gif" alt="Loading..." />
+  </div>
+</div> -->
+
+
+<div id="loading" style="visibility:hidden">
+    <img id="loading-image" src="/static/loader.gif" alt="Loading..." />
+</div>
+
 <div class = "content">
   <div id="mapdiv" class = "mapdiv"></div>
     <div style = "position: absolute; top: 80px; left: 50px; padding: 5px;">
             <button class = "btn btn-primary"><i class="material-icons " id = "nearby-btn">near_me</i></button>
             <button class = " btn btn-primary"><i class="material-icons " id = "current_loc">my_location</i></button>
+            <button class = " btn btn-primary" id="route">Route</button>
+            
     </div>
     <div id="search"  style="position: absolute; top: 80px; right: 10px; padding: 5px">
 
@@ -210,11 +243,6 @@
 
     <script>
 
-var cars = [
-	{ "make":"Porsche", "model":"911S" },
-	{ "make":"Mercedes-Benz", "model":"220SE" },
-	{ "make":"Jaguar","model": "Mark VII" }
-];
 
       if (localStorage.length != 0) {
         localStorage.removeItem("cur_lon");
@@ -379,7 +407,11 @@ new ol.layer.Vector({
   })
 });
 
+
+
 document.getElementById("nearby-btn").onclick = function() {
+
+  document.getElementById("loading").style.visibility = "visible";
 
   var elements = document.getElementsByClassName("landmark");
   while(elements.length > 0){
@@ -428,6 +460,7 @@ document.getElementById("nearby-btn").onclick = function() {
                       city = result.Location.Address.City;
                     }
                     var element = document.createElement('div');
+                  
                     element.classList.add("landmark");
                     var content = document.createElement("a");
                     content.id = result.Location.Name;
@@ -461,8 +494,14 @@ document.getElementById("nearby-btn").onclick = function() {
          
           $(".lm").popover({trigger: 'hover | focus', html: true});
         });
+        document.getElementById("loading").style.visibility = "hidden";
+
     })
+    // document.getElementById("loading").style.visibility = "hidden";
+
 }
+
+
 var tb = document.getElementById('places_tb');
 
 document.getElementById("toggle-btn").onclick = function() {
@@ -507,6 +546,12 @@ function showPosition(position) {
 }
 
 document.getElementById("search_btn").onclick = function() {
+
+  document.getElementById("loading").style.visibility = "visible";
+
+
+  
+
 
   var elements = document.getElementsByClassName("pin");
   while(elements.length > 0){
@@ -583,12 +628,82 @@ document.getElementById("search_btn").onclick = function() {
       $('#landmark_pop').popover({title: object,  trigger: 'hover | focus', html: true, content : cnt});
     })
     map.addOverlay(marker);
+    document.getElementById("loading").style.visibility = "hidden";
     map.getView().setCenter(ol.proj.transform([result.Longitude, result.Latitude], 'EPSG:4326','EPSG:3857'));
     map.getView().setZoom(14);
     localStorage.setItem('cur_lon', data.Response.View[0].Result[0].Location.DisplayPosition.Longitude.toString());
     localStorage.setItem('cur_lat', data.Response.View[0].Result[0].Location.DisplayPosition.Latitude.toString());
   })
+
 }
+// AmiufPk0e3QV0l2SC-0A-XBgPH3rd6dCMmgyfyumfhh35u3BMjbY_4SXA70aOEtA Bing Api Key
+document.getElementById("route").addEventListener("click", function(){
+  var coordinates = [[16832505.12095191, -4011613.961964385],[16832505.12095191, -4111613.961964385]];
+  var start = ol.proj.transform(coordinates[0], 'EPSG:3857', 'EPSG:4326').reverse().toString();
+  var end = ol.proj.transform(coordinates[1], 'EPSG:3857', 'EPSG:4326').reverse().toString();
+  const bingKey = "AmiufPk0e3QV0l2SC-0A-XBgPH3rd6dCMmgyfyumfhh35u3BMjbY_4SXA70aOEtA";
+  var url = "https://dev.virtualearth.net/REST/v1/Routes?wp.0=" + start + "&wp.1=" + end +
+            "&routeAttributes=routePath&key=" + bingKey;
+  console.log(url)
+
+  fetch(url)
+  .then(response=>response.json())
+  .then(data => {
+    console.log(data)
+    var linestring = data.resourceSets[0].resources[0].routePath.line.coordinates;
+    for (var i=0; i<linestring.length; i++) {
+          linestring[i].reverse();
+        }
+    var layerLines = new ol.layer.Vector({
+      source: new ol.source.Vector({
+        features: [new ol.Feature({
+          geometry: new ol.geom.LineString(linestring).transform('EPSG:4326', 'EPSG:3857'),
+          name: 'Line',
+        })]
+      }),
+      style : new ol.style.Style({
+        stroke: new ol.style.Stroke({
+        color: '#d1410c',
+        width: 3
+    })
+      })
+      
+    });
+    map.addLayer(layerLines);   
+
+  })
+
+
+  // var xhr = new XMLHttpRequest();
+
+  // xhr.onreadystatechange = function() {
+  //   if (xhr.readyState == 4) {
+  //     if (xhr.status == 200) {
+  //       var linestring = JSON.parse(xhr.responseText).resourceSets[0].resources[0].routePath.line.coordinates;
+  //       for (var i=0; i<linestring.length; i++) {
+  //         linestring[i].reverse();
+  //       }
+  //       var layerLines = new ol.layer.Vector({
+  //         source: new ol.source.Vector({
+  //           features: [new ol.Feature({
+  //             geometry: new ol.geom.LineString(linestring).transform('EPSG:4326', 'EPSG:3857'),
+  //             name: 'Line'
+  //           })]
+  //         }),
+  //       });
+  //       map.addLayer(layerLines);   
+  //     }
+  //   }
+  // }
+  
+
+  // xhr.open("GET", url, true);
+  // xhr.timeout = 3000;
+  // xhr.send();
+
+});
+
+  
 
 
 
