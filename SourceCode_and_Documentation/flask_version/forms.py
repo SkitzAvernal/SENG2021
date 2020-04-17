@@ -1,7 +1,7 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField, PasswordField, BooleanField, SubmitField, SelectField, DateField 
-from wtforms.validators import DataRequired, ValidationError, Email, EqualTo 
-from user import User 
+from wtforms import StringField, PasswordField, SubmitField, TextAreaField, HiddenField
+from wtforms.validators import DataRequired, ValidationError, Email, EqualTo, Length
+from models import User 
 
 class LoginForm(FlaskForm):
     username = StringField('Username', validators=[DataRequired()])
@@ -25,3 +25,7 @@ class SignUpForm(FlaskForm):
         if user is not None: 
             raise ValidationError('This email address has already been used') 
         
+class ReviewForm(FlaskForm):
+    body = TextAreaField('Body', validators=[DataRequired(), Length(max=200)]) 
+    landmark = HiddenField('Landmark')
+    submit = SubmitField('Add review')
