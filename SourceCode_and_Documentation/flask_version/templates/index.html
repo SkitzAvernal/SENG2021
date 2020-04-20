@@ -702,6 +702,79 @@ document.getElementById("route").addEventListener("click", function(){
   // xhr.send();
 
 });
+// current lon, lat
+const coord = [-33.870453, 151.208755];
+
+var dummy_data = [
+  {
+    'coordinate': [-34.425072, 150.893143],
+    'name': 'wollongong',
+    'cost': null,
+    'index': null
+  },
+  {
+    'coordinate': [-33.91439,151.24895],
+    'name': 'randwick',
+    'cost': null,
+    'index': null
+  },
+  
+  {
+    'coordinate': [-35.282001, 149.128998],
+    'name': 'Canberra',
+    'cost': null,
+    'index': null
+  }
+]
+// travelling salesman problem
+
+var fetch_url = "https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?origins=-33.870453, 151.208755&destinations=-33.91439,151.24895;-34.425072, 150.893143;-35.282001, 149.128998&travelMode=driving&distanceUnit=km&key=AmiufPk0e3QV0l2SC-0A-XBgPH3rd6dCMmgyfyumfhh35u3BMjbY_4SXA70aOEtA";
+fetch(fetch_url)
+.then(response => response.json())
+.then(data => {
+
+  destinations = data.resourceSets[0].resources[0].destinations;
+  distance_matrix = data.resourceSets[0].resources[0].results;
+  console.log(destinations)
+  for (var i = 0; i < dummy_data.length; i++) {
+    for (var j = 0; j < dummy_data.length; j++) {
+      if (dummy_data[i].coordinate[0] == destinations[j].latitude && dummy_data[i].coordinate[1] == destinations[j].longitude) {
+        dummy_data[i].index = j;
+        break;
+      }
+    
+    }
+  }
+  for (var i = 0; i < dummy_data.length; i++) {
+    for (var j = 0; j < dummy_data.length; j++) {
+      if (dummy_data[i].index == distance_matrix[j].destinationIndex) {
+        dummy_data[i].cost = distance_matrix[j].travelDistance;
+        break;
+      }
+    }
+  }
+  // now sort the data by cost
+  var i, j; 
+  for (i = 0; i < dummy_data.length-1; i++) {        
+    for (j = 0; j < dummy_data.length-i-1; j++) { 
+      if (dummy_data[j].cost > dummy_data[j+1].cost) {
+        var temp = dummy_data[j];
+        dummy_data[j] = dummy_data[j+1];
+        dummy_data[j+1] = temp;
+      }
+    }
+  }
+console.log(dummy_data)
+
+  // console.log(data)
+  // for (var result of data.resourceSets[0].resources.destinations) {
+  //   console.log(result)
+  
+
+  // }
+})
+
+
 
   
 
