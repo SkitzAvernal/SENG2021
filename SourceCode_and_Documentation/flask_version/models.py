@@ -38,11 +38,12 @@ class Review(db.Model):
 
 
 class Bookmark(db.Model):
-	__tablename__ = 'bookmark'
+    __tablename__ = 'bookmark'
 	
-	id = db.Column(db.Integer, primary_key=True)
-	username = db.Column(db.Integer, db.ForeignKey('user.username'), nullable=False)
-	landmark = db.Column(db.String(40), nullable=False)
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.Integer, db.ForeignKey('user.username'), nullable=False)
+    landmark = db.Column(db.String(40), nullable=False)
+    category = db.Column(db.String(40), nullable=False) 
 
-	def __repr__(self):
-		return '{}'.format(self.landmark)
+    def __repr__(self):
+        return '{}'.format(self.landmark)

@@ -134,6 +134,7 @@
                     <div class="col-2"></div>
                     <div class="d-flex justify-content-center p-5 col-8">
                         <h1 id= "lm_name" class="float-center">{{ name }}</h1>
+                        <h1 id= "lm_category" class="float-center">{{ lm_category }}</h1>
                         <h1 id= "news_name" class="float-center" style="display: none;">{{ news_name }}</h1>
                     </div>
                     <div class="col-2 p-4">
@@ -141,6 +142,7 @@
                             <form id="bookmark_form">
                                 <button type="submit" class="btn btn-primary float-right" id="bookmark_btn">Bookmark</button>
                                 <input type="hidden" name="landmark_name" value="{{ name }}"> 
+                                <input type="hidden" name="category" id="categoryhidden" value="{{ category }}"> 
                             </form>
                         {% endif %}
                     </div>
@@ -376,8 +378,10 @@
     $("#bookmark_btn").click(function(e) {
         e.preventDefault()
         var landmark = document.getElementById("lm_name").innerHTML;
+        var category = document.getElementById("categoryhidden").value;
         $.post("/bookmark", {
-            landmark: landmark
+            landmark: landmark,
+            "category": category
         });
         alert("Bookmark has been added");
     });

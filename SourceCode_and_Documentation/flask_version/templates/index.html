@@ -173,10 +173,11 @@
           <ul class ="list-group" id="bookmark_list">
             {% for bookmark in bookmarks %}
               <li class="list-group-item" id="{{'bookmark-' + bookmark.landmark}}" >
-                <a href="{{url_for('landmark', lm_name=bookmark.landmark)}}">{{bookmark.landmark}}</a>
+                <a href="{{url_for('landmark', lm_name=bookmark.landmark, category=bookmark.category)}}">{{bookmark.landmark}}</a>
                 <button type="button" onclick="remove_bookmark(this, landmark = '{{bookmark.landmark}}')" class="close" aria-label="Close">&times;
                 </button>
               </li>
+              <br>
             {% endfor %}
           </ul>
           {% else %}
@@ -193,15 +194,9 @@
   </div>
 </div>
 
-<!-- <div id="loading" style="visibility:hidden" class="row justify-content-center align-items-center h-100">
-  <div class="col col-sm-6 col-md-6 col-lg-4 col-xl-3">
-    <img id="loading-image" src="/static/loader.gif" alt="Loading..." />
-  </div>
-</div> -->
 
 
-<div id="loading" style="visibility:hidden">
-    <img id="loading-image" src="/static/loader.gif" alt="Loading..." />
+
 <div class="modal fade" id="planner-modal" role="dialog">
   <div class="modal-dialog">
       <div class="modal-content">
@@ -211,6 +206,9 @@
           <div class="modal-body">
               <form method="POST">
                 {{ plannerForm.hidden_tag() }}
+                {{ plannerForm.start.label }}
+                {{ plannerForm.start(class="form-control", placeholder="Starting place") }}
+                <br>
                 <div class="form-group" id="planner-landmark-group">
                   {{ plannerForm.landmark1.label }}
                   {{ plannerForm.landmark1(class="form-control planner-landmark", placeholder="First landmark of the trip") }}
@@ -225,6 +223,16 @@
           </div>
       </div>
   </div>
+</div>
+<!-- <div id="loading" style="visibility:hidden" class="row justify-content-center align-items-center h-100">
+  <div class="col col-sm-6 col-md-6 col-lg-4 col-xl-3">
+    <img id="loading-image" src="/static/loader.gif" alt="Loading..." />
+  </div>
+</div> -->
+
+
+<div id="loading" style="visibility:hidden">
+    <img id="loading-image" src="/static/loader.gif" alt="Loading..." />
 </div>
 
 <div class = "content">

@@ -31,6 +31,7 @@ class ReviewForm(FlaskForm):
     submit = SubmitField('Add review')
 
 class PlannerForm(FlaskForm):
+    start = StringField('Starting place', validators=[DataRequired()])
     landmark1 = StringField('Landmark 1', validators=[DataRequired()])
     landmark2 = StringField('Landmark 2', validators=[DataRequired()])
     landmark3 = StringField('Landmark 3')

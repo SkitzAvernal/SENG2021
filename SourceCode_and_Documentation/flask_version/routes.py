@@ -1,7 +1,9 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, Response, jsonify
 from app import app, db, login 
 from flask_login import current_user, login_user, logout_user 
+from models import User 
 from webscraper import *
+import random, json
 from models import User, Review, Bookmark
 from forms import SignUpForm, LoginForm, ReviewForm, PlannerForm
 from sqlalchemy import desc
@@ -29,14 +31,28 @@ def index():
     
     loginForm = LoginForm()
     plannerForm = PlannerForm()
+    destinationList = []
 
     if plannerForm.validate_on_submit():
+        print(plannerForm.start.data)
         print(plannerForm.landmark1.data)
         print(plannerForm.landmark2.data)
         if plannerForm.landmark3.data:
             print(plannerForm.landmark3.data)
         if plannerForm.landmark4.data:
             print(plannerForm.landmark4.data)
+
+
+        # get coordinates of landmark 1 
+        fetchURLstart = 'https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext=' + plannerForm.start.data + '&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs'
+        fetchURLstart = fetchURLstart.replace(' ', '+')
+        with urllib.request.urlopen(fetchURLstart) as response:
+            data = json.loads(response.read().decode())
+            startCoords = data['Response']['View'][0]['Result'][0]['Location']['NavigationPosition'][0] 
+            startCoords = [startCoords['Latitude'], startCoords['Longitude']]
+                # if len(data['Response']['View']) > 0 else None 
+        startDest = {"name": plannerForm.start.data, "latitude": startCoords[0], "longitude": startCoords[1]}
+        destinationList.append(startDest)
 
         # get coordinates of landmark 1 
         fetchURL1 = 'https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext=' + plannerForm.landmark1.data + '&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs'
@@ -46,6 +62,8 @@ def index():
             lm1Coords = data['Response']['View'][0]['Result'][0]['Location']['NavigationPosition'][0] 
             lm1Coords = [lm1Coords['Latitude'], lm1Coords['Longitude']]
                 # if len(data['Response']['View']) > 0 else None 
+        destination1 = {"name": plannerForm.landmark1.data, "latitude": lm1Coords[0], "longitude": lm1Coords[1]}
+        destinationList.append(destination1)
 
         # get coordinates of landmark 2 
         fetchURL2 = 'https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext=' + plannerForm.landmark2.data + '&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs'
@@ -55,6 +73,8 @@ def index():
             lm2Coords = data['Response']['View'][0]['Result'][0]['Location']['NavigationPosition'][0] 
             lm2Coords = [lm2Coords['Latitude'], lm2Coords['Longitude']]
                 # if len(data['Response']['View']) > 0 else None 
+        destination2 = {"name": plannerForm.landmark2.data, "latitude": lm2Coords[0], "longitude": lm2Coords[1]}
+        destinationList.append(destination2)
 
         if plannerForm.landmark3.data:
             # get coordinates of landmark 3 
@@ -65,6 +85,8 @@ def index():
                 lm3Coords = data['Response']['View'][0]['Result'][0]['Location']['NavigationPosition'][0] 
                 lm3Coords = [lm3Coords['Latitude'], lm3Coords['Longitude']]
                     # if len(data['Response']['View']) > 0 else None 
+            destination3 = {"name": plannerForm.landmark3.data, "latitude": lm3Coords[0], "longitude": lm3Coords[1]}
+            destinationList.append(destination3)
         else:
             lm3Coords = None 
         
@@ -77,15 +99,18 @@ def index():
                 lm4Coords = data['Response']['View'][0]['Result'][0]['Location']['NavigationPosition'][0] 
                 lm4Coords = [lm4Coords['Latitude'], lm4Coords['Longitude']]
                     # if len(data['Response']['View']) > 0 else None 
+            destination4 = {"name": plannerForm.landmark4.data, "latitude": lm4Coords[0], "longitude": lm4Coords[1]}
+            destinationList.append(destination4)
         else:
             lm4Coords = None 
 
+        print(startCoords)
         print(lm1Coords)
         print(lm2Coords)
         print(lm3Coords)
         print(lm4Coords)
 
-        return redirect(url_for('index'))
+        # return redirect(url_for('index'))
     
     if current_user.is_authenticated:
         bookmarks = Bookmark.query.filter_by(username=current_user.username).order_by(Bookmark.landmark).all()
@@ -94,15 +119,17 @@ def index():
 				        	lat = lat, 
 				        	zoom = zoom, 
 				        	loginForm = loginForm,
-				        	bookmarks=bookmarks, 
-                            plannerForm = plannerForm)
+				        	bookmarks = bookmarks, 
+                            plannerForm = plannerForm, 
+                            destinationList = destinationList)
 
     return render_template('index.html',
                            lon = lon,
                            lat = lat,
                            zoom = zoom, 
                            loginForm = loginForm,
-                           plannerForm = plannerForm)
+                           plannerForm = plannerForm, 
+                           destinationList = destinationList)
 
 
 
@@ -205,12 +232,26 @@ def landmark(category, lm_name):
         search_name = lm_name.split(',')[0]
     events_scraper = Events_scraper(search_name)   
     info_scraper = Info_scraper(lm_name)
+
+    print('category is:', category)
+
+    # get reviews 
+    reviewForm = ReviewForm()
+    reviews = Review.query.filter_by(landmark=lm_name).order_by(desc(Review.timestamp)).all()
+    # print(reviews)
     return render_template('landmark.html', 
                             name = search_name, 
                             image = info_scraper.get_image(), 
                             desc = info_scraper.get_description(), 
                             events = events_scraper.get_events(), 
+<<<<<<< HEAD
                             news_name = news_name)
+=======
+                            news_name = news_name, 
+                            category = category, 
+                            reviewForm = reviewForm, 
+                            reviews = reviews)
+>>>>>>> 96375c82da1d0bf230587594cdfbf8c78e7a2cdc
 # @app.route('/landmark/<lm_name>')
 # def landmark(lm_name):
 #     reviewForm = ReviewForm()
@@ -288,9 +329,12 @@ def bookmark():
     if not current_user.is_authenticated:
         return redirect(request.referrer)
 
-    landmark = request.form['landmark']
+    landmark = request.form.get('landmark')
+    category = request.form.get('category')
+    print('lmname:', request.form)
+    print('category is:', category)
     #print('user is {} nd landmark is{}'.format(current_user.username, landmark))
-    bookmark = Bookmark(username=current_user.username, landmark=landmark)
+    bookmark = Bookmark(username=current_user.username, landmark=landmark, category=category)
     db.session.add(bookmark)
     db.session.commit()
 
