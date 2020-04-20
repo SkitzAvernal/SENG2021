@@ -18,7 +18,7 @@ def get_distance(point1, point2):
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index/', methods=['GET', 'POST'])
-def index():
+def index(loginForm=None):
     lon = 16832505.12095191
 
     lat = -4011613.961964385
@@ -280,17 +280,17 @@ def login():
     loginForm = LoginForm()
 
     if current_user.is_authenticated:
-        return render_template('index.html', loginForm=loginForm)
+        return redirect(url_for('index'))
 
     if loginForm.validate_on_submit():
         user = User.query.filter_by(username=loginForm.username.data).first() 
         if user is None or not user.check_password(loginForm.password.data):
             flash('Invalid username or password')
-            return render_template('index.html', loginForm=loginForm)
+            return redirect(url_for('index', loginForm = loginForm))
         login_user(user)
         return redirect(url_for('index'))
 
-    return render_template('index.html', loginForm=LoginForm)
+    return redirect(url_for('index'))
 
 
 @app.route('/logout')
