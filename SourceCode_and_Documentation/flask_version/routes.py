@@ -5,6 +5,12 @@ from models import User, Review, Bookmark
 from forms import SignUpForm, LoginForm, ReviewForm, PlannerForm
 from sqlalchemy import desc
 from datetime import datetime
+import urllib.request, urllib.parse
+import json 
+from geopy import distance 
+
+def get_distance(point1, point2):
+    return distance.distance(point1, point2).km
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index/', methods=['GET', 'POST'])
@@ -30,6 +36,54 @@ def index():
             print(plannerForm.landmark3.data)
         if plannerForm.landmark4.data:
             print(plannerForm.landmark4.data)
+
+        # get coordinates of landmark 1 
+        fetchURL1 = 'https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext=' + plannerForm.landmark1.data + '&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs'
+        fetchURL1 = fetchURL1.replace(' ', '+')
+        with urllib.request.urlopen(fetchURL1) as response:
+            data = json.loads(response.read().decode())
+            lm1Coords = data['Response']['View'][0]['Result'][0]['Location']['NavigationPosition'][0] 
+            lm1Coords = [lm1Coords['Latitude'], lm1Coords['Longitude']]
+                # if len(data['Response']['View']) > 0 else None 
+
+        # get coordinates of landmark 2 
+        fetchURL2 = 'https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext=' + plannerForm.landmark2.data + '&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs'
+        fetchURL2 = fetchURL2.replace(' ', '+')
+        with urllib.request.urlopen(fetchURL2) as response:
+            data = json.loads(response.read().decode())
+            lm2Coords = data['Response']['View'][0]['Result'][0]['Location']['NavigationPosition'][0] 
+            lm2Coords = [lm2Coords['Latitude'], lm2Coords['Longitude']]
+                # if len(data['Response']['View']) > 0 else None 
+
+        if plannerForm.landmark3.data:
+            # get coordinates of landmark 3 
+            fetchURL3 = 'https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext=' + plannerForm.landmark3.data + '&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs'
+            fetchURL3 = fetchURL3.replace(' ', '+')
+            with urllib.request.urlopen(fetchURL3) as response:
+                data = json.loads(response.read().decode())
+                lm3Coords = data['Response']['View'][0]['Result'][0]['Location']['NavigationPosition'][0] 
+                lm3Coords = [lm3Coords['Latitude'], lm3Coords['Longitude']]
+                    # if len(data['Response']['View']) > 0 else None 
+        else:
+            lm3Coords = None 
+        
+        if plannerForm.landmark4.data:
+            # get coordinates of landmark 4 
+            fetchURL4 = 'https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext=' + plannerForm.landmark4.data + '&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs'
+            fetchURL4 = fetchURL4.replace(' ', '+')
+            with urllib.request.urlopen(fetchURL4) as response:
+                data = json.loads(response.read().decode())
+                lm4Coords = data['Response']['View'][0]['Result'][0]['Location']['NavigationPosition'][0] 
+                lm4Coords = [lm4Coords['Latitude'], lm4Coords['Longitude']]
+                    # if len(data['Response']['View']) > 0 else None 
+        else:
+            lm4Coords = None 
+
+        print(lm1Coords)
+        print(lm2Coords)
+        print(lm3Coords)
+        print(lm4Coords)
+
         return redirect(url_for('index'))
     
     if current_user.is_authenticated:

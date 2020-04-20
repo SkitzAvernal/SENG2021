@@ -81,22 +81,22 @@
       <a  href="{{ url_for('signup') }}"><button class="btn btn-primary border my-2 my-sm-2">Sign Up</button></a>
     {% endif %}
 
-    <a class="navbar-brand">LANDMARK EXPLORER</a>
+    <a class="navbar-brand pl-4">LANDMARK EXPLORER</a>
 
-      {% if not current_user.is_anonymous %}
-      <ul class="navbar-nav" style="display: inline-block;">
-        <li class="nav-item px-2" style="display: inline-block;">
-          <button class="btn btn-primary border" id="planner_btn" data-toggle="modal" data-target="#planner-modal">Plan a trip</button>
-        </li>
+    <ul class="navbar-nav ml-auto" style="display: inline-block;">
+      <li class="nav-item px-2" style="display: inline-block;">
+        <button class="btn btn-primary border" id="planner_btn" data-toggle="modal" data-target="#planner-modal">Plan a trip</button>
+      </li>
+        {% if not current_user.is_anonymous %}
         <li class="nav-item px-2" style="display: inline-block;">
           <a href = "#" id = "bookmark"><button class="btn btn-primary border my-2 my-sm-2" data-toggle="modal" data-target="#bookmark_modal"><span class = "material-icons">bookmarks</span></button>
         </li>
         <li class="nav-item px-2" style="display: inline-block;">
           <a href="{{ url_for('logout') }}"><button class="btn btn-primary border my-2 my-sm-2">Log Out</button></a>
         </li>
+        {% endif %}
 
 
-      {% endif %}
     </ul>
     {% if current_user.is_anonymous %}
     <form class="form-inline my-2 my-lg-0 needs-validation" action="{{ url_for('login') }}" method="POST">
