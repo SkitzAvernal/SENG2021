@@ -28,6 +28,7 @@ def index():
     
     loginForm = LoginForm()
     plannerForm = PlannerForm()
+    destinationList = []
 
     if plannerForm.validate_on_submit():
         print(plannerForm.landmark1.data)
@@ -37,6 +38,7 @@ def index():
         if plannerForm.landmark4.data:
             print(plannerForm.landmark4.data)
 
+
         # get coordinates of landmark 1 
         fetchURL1 = 'https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext=' + plannerForm.landmark1.data + '&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs'
         fetchURL1 = fetchURL1.replace(' ', '+')
@@ -45,6 +47,8 @@ def index():
             lm1Coords = data['Response']['View'][0]['Result'][0]['Location']['NavigationPosition'][0] 
             lm1Coords = [lm1Coords['Latitude'], lm1Coords['Longitude']]
                 # if len(data['Response']['View']) > 0 else None 
+        destination1 = {"name": plannerForm.landmark1.data, "latitude": lm1Coords[0], "longitude": lm1Coords[1]}
+        destinationList.append(destination1)
 
         # get coordinates of landmark 2 
         fetchURL2 = 'https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext=' + plannerForm.landmark2.data + '&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs'
@@ -54,6 +58,8 @@ def index():
             lm2Coords = data['Response']['View'][0]['Result'][0]['Location']['NavigationPosition'][0] 
             lm2Coords = [lm2Coords['Latitude'], lm2Coords['Longitude']]
                 # if len(data['Response']['View']) > 0 else None 
+        destination2 = {"name": plannerForm.landmark2.data, "latitude": lm2Coords[0], "longitude": lm2Coords[1]}
+        destinationList.append(destination2)
 
         if plannerForm.landmark3.data:
             # get coordinates of landmark 3 
@@ -64,6 +70,8 @@ def index():
                 lm3Coords = data['Response']['View'][0]['Result'][0]['Location']['NavigationPosition'][0] 
                 lm3Coords = [lm3Coords['Latitude'], lm3Coords['Longitude']]
                     # if len(data['Response']['View']) > 0 else None 
+            destination3 = {"name": plannerForm.landmark3.data, "latitude": lm3Coords[0], "longitude": lm3Coords[1]}
+            destinationList.append(destination3)
         else:
             lm3Coords = None 
         
@@ -76,6 +84,8 @@ def index():
                 lm4Coords = data['Response']['View'][0]['Result'][0]['Location']['NavigationPosition'][0] 
                 lm4Coords = [lm4Coords['Latitude'], lm4Coords['Longitude']]
                     # if len(data['Response']['View']) > 0 else None 
+            destination4 = {"name": plannerForm.landmark4.data, "latitude": lm4Coords[0], "longitude": lm4Coords[1]}
+            destinationList.append(destination4)
         else:
             lm4Coords = None 
 
@@ -84,7 +94,7 @@ def index():
         print(lm3Coords)
         print(lm4Coords)
 
-        return redirect(url_for('index'))
+        # return redirect(url_for('index'))
     
     if current_user.is_authenticated:
         bookmarks = Bookmark.query.filter_by(username=current_user.username).order_by(Bookmark.landmark).all()
@@ -94,14 +104,16 @@ def index():
 				        	zoom = zoom, 
 				        	loginForm = loginForm,
 				        	bookmarks=bookmarks, 
-                            plannerForm = plannerForm)
+                            plannerForm = plannerForm, 
+                            destinationList = destinationList)
 
     return render_template('index.html',
                            lon = lon,
                            lat = lat,
                            zoom = zoom, 
                            loginForm = loginForm,
-                           plannerForm = plannerForm)
+                           plannerForm = plannerForm, 
+                           destinationList = destinationList)
 
 
 @app.route('/landmark/<lm_name>')
