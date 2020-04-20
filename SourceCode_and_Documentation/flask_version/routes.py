@@ -31,6 +31,7 @@ def index():
     destinationList = []
 
     if plannerForm.validate_on_submit():
+        print(plannerForm.start.data)
         print(plannerForm.landmark1.data)
         print(plannerForm.landmark2.data)
         if plannerForm.landmark3.data:
@@ -38,6 +39,17 @@ def index():
         if plannerForm.landmark4.data:
             print(plannerForm.landmark4.data)
 
+
+        # get coordinates of landmark 1 
+        fetchURLstart = 'https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext=' + plannerForm.start.data + '&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs'
+        fetchURLstart = fetchURLstart.replace(' ', '+')
+        with urllib.request.urlopen(fetchURLstart) as response:
+            data = json.loads(response.read().decode())
+            startCoords = data['Response']['View'][0]['Result'][0]['Location']['NavigationPosition'][0] 
+            startCoords = [startCoords['Latitude'], startCoords['Longitude']]
+                # if len(data['Response']['View']) > 0 else None 
+        startDest = {"name": plannerForm.start.data, "latitude": startCoords[0], "longitude": startCoords[1]}
+        destinationList.append(startDest)
 
         # get coordinates of landmark 1 
         fetchURL1 = 'https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext=' + plannerForm.landmark1.data + '&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs'
@@ -89,6 +101,7 @@ def index():
         else:
             lm4Coords = None 
 
+        print(startCoords)
         print(lm1Coords)
         print(lm2Coords)
         print(lm3Coords)

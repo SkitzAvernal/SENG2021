@@ -181,6 +181,9 @@
           <div class="modal-body">
               <form method="POST">
                 {{ plannerForm.hidden_tag() }}
+                {{ plannerForm.start.label }}
+                {{ plannerForm.start(class="form-control", placeholder="Starting place") }}
+                <br>
                 <div class="form-group" id="planner-landmark-group">
                   {{ plannerForm.landmark1.label }}
                   {{ plannerForm.landmark1(class="form-control planner-landmark", placeholder="First landmark of the trip") }}
