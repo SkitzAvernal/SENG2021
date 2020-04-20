@@ -1,7 +1,7 @@
 from routes import app
 
 from app import app, db 
-from user import User 
+from models import User 
 
 @app.shell_context_processor 
 def make_shell_context():
