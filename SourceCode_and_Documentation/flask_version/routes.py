@@ -1,14 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, Response, jsonify
-<< << << < HEAD
 from app import app, db, login
 from flask_login import current_user, login_user, logout_user
 from models import User
-from forms import SignUpForm, LoginForm
-== == == =
-from app import app, db, login
-from flask_login import current_user, login_user, logout_user
-from models import User
->>>>>> > master
 from webscraper import *
 import random
 import json
