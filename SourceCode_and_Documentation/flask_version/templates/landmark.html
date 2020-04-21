@@ -107,6 +107,16 @@
             color: #f8ce0b;
         }
 
+        .news-scrolling {
+            overflow: auto;
+            height: 300px;
+        }
+
+        .events-scrolling {
+            overflow: auto;
+            height: 500px;
+        }
+
     </style>
 </head>
 <body>
@@ -166,17 +176,19 @@
                                     </ul>
                                 </div>
                             </div>
-                            <ul class = "list-group  d-block">
-                                {% for item in events %}
-                                <a href="{{item.url}}">
-                                    <li class = "list-group-item li_item">
-                                        <small style="color:rgb(209, 65, 12);">{{item.date}}</small>
-                                        <h5> {{item.title}} </h5>
-                                        <p style="text-overflow: ellipsis">{{item.addr}}</p>
-                                    </li>
-                                </a>
-                                {% endfor %}
-                            </ul>
+                            <div class="container-fluid events-scrolling">
+                                <ul class = "list-group  d-block">
+                                    {% for item in events %}
+                                    <a href="{{item.url}}">
+                                        <li class = "list-group-item li_item">
+                                            <small style="color:rgb(209, 65, 12);">{{item.date}}</small>
+                                            <h5> {{item.title}} </h5>
+                                            <p style="text-overflow: ellipsis">{{item.addr}}</p>
+                                        </li>
+                                    </a>
+                                    {% endfor %}
+                                </ul>
+                            </div>
                         </div>
                     </div>
                     <div class = "row p-2">
@@ -196,7 +208,7 @@
                             <div class="d-flex justify-content-left p-2">
                                 <h4>News</h4>
                             </div>
-                            <div class="container-fluid">
+                            <div class="container-fluid news-scrolling">
                                 <ul class="list-group" id="news_list"></ul>
                                 <br>
                             </div>
