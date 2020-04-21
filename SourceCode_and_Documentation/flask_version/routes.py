@@ -1,8 +1,14 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, Response, jsonify
+<< << << < HEAD
 from app import app, db, login
 from flask_login import current_user, login_user, logout_user
 from models import User
 from forms import SignUpForm, LoginForm
+== == == =
+from app import app, db, login
+from flask_login import current_user, login_user, logout_user
+from models import User
+>>>>>> > master
 from webscraper import *
 import random
 import json
@@ -37,8 +43,12 @@ def index(loginForm=None):
     loginForm = LoginForm()
     plannerForm = PlannerForm()
     destinationList = []
+    user_landmarks = []
+    planner_bool = False
+    startCoords = []
 
     if plannerForm.validate_on_submit():
+        planner_bool = True
         print(plannerForm.start.data)
         print(plannerForm.landmark1.data)
         print(plannerForm.landmark2.data)
@@ -114,6 +124,110 @@ def index(loginForm=None):
         print(lm3Coords)
         print(lm4Coords)
 
+        if lm3Coords != None and lm4Coords != None:
+            fetch_url = f"https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?origins={startCoords[0]},{startCoords[1]}&destinations={lm1Coords[0]},{lm1Coords[1]};{lm2Coords[0]},{lm2Coords[1]};{lm3Coords[0]},{lm3Coords[1]};{lm4Coords[0]},{lm4Coords[1]}&travelMode=driving&distanceUnit=km&key=AmiufPk0e3QV0l2SC-0A-XBgPH3rd6dCMmgyfyumfhh35u3BMjbY_4SXA70aOEtA"
+            user_landmarks = [
+                {
+                    'coordinate': lm1Coords,
+                    'name': plannerForm.landmark1.data,
+                    'index': None,
+                    'cost': None
+                },
+                {
+                    'coordinate': lm2Coords,
+                    'name': plannerForm.landmark2.data,
+                    'index': None,
+                    'cost': None
+                },
+                {
+                    'coordinate': lm3Coords,
+                    'name': plannerForm.landmark3.data,
+                    'index': None,
+                    'cost': None
+                },
+                {
+                    'coordinate': lm4Coords,
+                    'name': plannerForm.landmark4.data,
+                    'index': None,
+                    'cost': None
+                }
+            ]
+        elif lm3Coords != None:
+            fetch_url = f"https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?origins={startCoords[0]},{startCoords[1]}&destinations={lm1Coords[0]},{lm1Coords[1]};{lm2Coords[0]},{lm2Coords[1]};{lm3Coords[0]},{lm3Coords[1]}&travelMode=driving&distanceUnit=km&key=AmiufPk0e3QV0l2SC-0A-XBgPH3rd6dCMmgyfyumfhh35u3BMjbY_4SXA70aOEtA"
+            user_landmarks = [
+                {
+                    'coordinate': lm1Coords,
+                    'name': plannerForm.landmark1.data,
+                    'index': None,
+                    'cost': None
+                },
+                {
+                    'coordinate': lm2Coords,
+                    'name': plannerForm.landmark2.data,
+                    'index': None,
+                    'cost': None
+                },
+                {
+                    'coordinate': lm3Coords,
+                    'name': plannerForm.landmark3.data,
+                    'index': None,
+                    'cost': None
+                }
+            ]
+        else:
+            fetch_url = f"https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?origins={startCoords[0]},{startCoords[1]}&destinations={lm1Coords[0]},{lm1Coords[1]};{lm2Coords[0]},{lm2Coords[1]}&travelMode=driving&distanceUnit=km&key=AmiufPk0e3QV0l2SC-0A-XBgPH3rd6dCMmgyfyumfhh35u3BMjbY_4SXA70aOEtA"
+            user_landmarks = [
+                {
+                    'coordinate': lm1Coords,
+                    'name': plannerForm.landmark1.data,
+                    'index': None,
+                    'cost': None
+                },
+                {
+                    'coordinate': lm2Coords,
+                    'name': plannerForm.landmark2.data,
+                    'index': None,
+                    'cost': None
+                }
+            ]
+        response = requests.get(fetch_url)
+        data = response.json()
+        destinations = data['resourceSets'][0]['resources'][0]['destinations']
+        distance_matrix = data['resourceSets'][0]['resources'][0]['results']
+
+        i = 0
+        j = 0
+        while i < len(user_landmarks):
+            while j < len(user_landmarks):
+                if user_landmarks[i]['coordinate'][0] == destinations[j]['latitude'] and user_landmarks[i]['coordinate'][1] == destinations[j]['longitude']:
+                    user_landmarks[i]['index'] = j
+                    break
+                j += 1
+            i += 1
+        i = 0
+        j = 0
+        while i < len(user_landmarks):
+            while j < len(user_landmarks):
+                if user_landmarks[i]['index'] == distance_matrix[j]['destinationIndex']:
+                    user_landmarks[i]['cost'] = distance_matrix[j]['travelDistance']
+                    break
+                j += 1
+            i += 1
+        # sorting the data
+        i = 0
+        j = 0
+        while i < len(user_landmarks) - 1:
+            while j < len(user_landmarks) - i - 1:
+                if user_landmarks[j]['cost'] > user_landmarks[j + 1]['cost']:
+                    temp = user_landmarks[j]
+                    user_landmarks[j] = user_landmarks[j + 1]
+                    user_landmarks[j + 1] = temp
+                j += 1
+            i += 1
+        print(user_landmarks)
+
+        # now get the actual linestring
+
         # return redirect(url_for('index'))
 
     if current_user.is_authenticated:
@@ -125,7 +239,10 @@ def index(loginForm=None):
                                loginForm=loginForm,
                                bookmarks=bookmarks,
                                plannerForm=plannerForm,
-                               destinationList=destinationList)
+                               destinationList=destinationList,
+                               trip_planner=user_landmarks,
+                               planner=planner_bool,
+                               planner_origin=startCoords)
 
     return render_template('index.html',
                            lon=lon,
@@ -133,7 +250,10 @@ def index(loginForm=None):
                            zoom=zoom,
                            loginForm=loginForm,
                            plannerForm=plannerForm,
-                           destinationList=destinationList)
+                           destinationList=destinationList,
+                           trip_planner=user_landmarks,
+                           planner=planner_bool,
+                           planner_origin=startCoords)
 
 
 @app.route('/index/postmethod', methods=['POST'])
