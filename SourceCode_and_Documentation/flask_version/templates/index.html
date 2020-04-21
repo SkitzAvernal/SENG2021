@@ -1,7 +1,7 @@
 <html>
 
  <head>
-    <title>OpenLayers</title>
+    <title>Landmark Explorer</title>
     <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/build/ol.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/css/ol.css">
     <script src="https://cdn.rawgit.com/kikocorreoso/map2wiki/master/src/static/brython_dist.js"></script>
@@ -102,18 +102,22 @@
       <a  href="{{ url_for('signup') }}"><button class="btn btn-primary border my-2 my-sm-2">Sign Up</button></a>
     {% endif %}
 
-    <a class="navbar-brand">LANDMARK EXPLORER</a>
+    <a class="navbar-brand pl-4">LANDMARK EXPLORER</a>
 
-      {% if not current_user.is_anonymous %}
-      <ul class="navbar-nav">
-      <li class="nav-item">
-        <a href = "#" id = "bookmark"><button class="btn btn-primary border my-2 my-sm-2" data-toggle="modal" data-target="#bookmark_modal"><span class = "material-icons">bookmarks</span></button>
-
-        <a href="{{ url_for('logout') }}"><button class="btn btn-primary border my-2 my-sm-2">Log Out</button></a>
+    <ul class="navbar-nav ml-auto" style="display: inline-block;">
+      <li class="nav-item px-2" style="display: inline-block;">
+        <button class="btn btn-primary border" id="planner_btn" data-toggle="modal" data-target="#planner-modal">Plan a trip</button>
       </li>
+        {% if not current_user.is_anonymous %}
+        <li class="nav-item px-2" style="display: inline-block;">
+          <a href = "#" id = "bookmark"><button class="btn btn-primary border my-2 my-sm-2" data-toggle="modal" data-target="#bookmark_modal"><span class = "material-icons">bookmarks</span></button>
+        </li>
+        <li class="nav-item px-2" style="display: inline-block;">
+          <a href="{{ url_for('logout') }}"><button class="btn btn-primary border my-2 my-sm-2">Log Out</button></a>
+        </li>
+        {% endif %}
 
 
-      {% endif %}
     </ul>
     {% if current_user.is_anonymous %}
     <form class="form-inline my-2 my-lg-0 needs-validation" action="{{ url_for('login') }}" method="POST">
@@ -165,16 +169,60 @@
         </button>
       </div>
       <div class="modal-body">
-        You do not have any bookmarks.
+        {% if bookmarks %}
+          <ul class ="list-group" id="bookmark_list">
+            {% for bookmark in bookmarks %}
+              <li class="list-group-item" id="{{'bookmark-' + bookmark.landmark}}" >
+                <a href="{{url_for('landmark', lm_name=bookmark.landmark, category=bookmark.category)}}">{{bookmark.landmark}}</a>
+                <button type="button" onclick="remove_bookmark(this, landmark = '{{bookmark.landmark}}')" class="close" aria-label="Close">&times;
+                </button>
+              </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+            You do not have any bookmarks.
+          {% endif %}
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
+        <!--{% if bookmarks %}
+          <button type="button" id="save_bookmark" class="btn btn-primary">Save changes</button>
+        {% endif %}-->
       </div>
     </div>
   </div>
 </div>
 
+
+
+
+<div class="modal fade" id="planner-modal" role="dialog">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+            <h4>Plan a trip</h4>
+          </div>
+          <div class="modal-body">
+              <form method="POST">
+                {{ plannerForm.hidden_tag() }}
+                {{ plannerForm.start.label }}
+                {{ plannerForm.start(class="form-control", placeholder="Starting place") }}
+                <br>
+                <div class="form-group" id="planner-landmark-group">
+                  {{ plannerForm.landmark1.label }}
+                  {{ plannerForm.landmark1(class="form-control planner-landmark", placeholder="First landmark of the trip") }}
+                  <br>
+                  {{ plannerForm.landmark2.label }}
+                  {{ plannerForm.landmark2(class="form-control planner-landmark", placeholder="Second landmark of the trip") }}
+                  <br>
+                </div>
+                <div id="add-landmark-holder" class="pb-3"></div>
+                {{ plannerForm.submit(class="btn btn-primary") }}
+              </form>
+          </div>
+      </div>
+  </div>
+</div>
 <!-- <div id="loading" style="visibility:hidden" class="row justify-content-center align-items-center h-100">
   <div class="col col-sm-6 col-md-6 col-lg-4 col-xl-3">
     <img id="loading-image" src="/static/loader.gif" alt="Loading..." />
@@ -191,7 +239,6 @@
     <div style = "position: absolute; top: 80px; left: 50px; padding: 5px;">
             <button class = "btn btn-primary"><i class="material-icons " id = "nearby-btn">near_me</i></button>
             <button class = " btn btn-primary"><i class="material-icons " id = "current_loc">my_location</i></button>
-            <button class = " btn btn-primary" id="route">Route</button>
             
     </div>
     <div id="search"  style="position: absolute; top: 80px; right: 10px; padding: 5px">
@@ -223,9 +270,6 @@
         <header class="bs-canvas-header p-3 bg-primary overflow-auto">
             <button type="button" class="bs-canvas-close float-left close" aria-label="Close"><span aria-hidden="true" class="text-light">&times;</span></button>
             <h4 class="d-inline-block text-light mb-0 float-right">Places</h4>
-
-
-
         </header>
         <div class="bs-canvas-content px-3 py-5" >
             <table class = "table table-hover" >
@@ -242,7 +286,10 @@
     <script src = "/static/index.js"></script>
 
     <script>
-
+      var planner = JSON.parse('{{ planner | tojson | safe }}');
+      var trip_planner = JSON.parse('{{ trip_planner | tojson | safe }}');
+      var origin = JSON.parse('{{ planner_origin | tojson | safe }}');
+      console.log(planner)
 
       if (localStorage.length != 0) {
         localStorage.removeItem("cur_lon");
@@ -272,6 +319,87 @@
      })
    ]
  });
+
+ // trip planner here
+  var prev = origin 
+  if (planner) {
+    for (var item of trip_planner) {
+      const bingKey = "AmiufPk0e3QV0l2SC-0A-XBgPH3rd6dCMmgyfyumfhh35u3BMjbY_4SXA70aOEtA";
+      var url = "https://dev.virtualearth.net/REST/v1/Routes?wp.0=" + prev[0] + "," + prev[1] + "&wp.1=" + item.coordinate[0] + "," + item.coordinate[1] +
+                "&routeAttributes=routePath&key=" + bingKey;
+      prev = item.coordinate;
+      console.log(url)
+      console.log(trip_planner)
+      fetch(url)
+      .then(response=>response.json())
+      .then(data => {
+        console.log(data)
+        var linestring = data.resourceSets[0].resources[0].routePath.line.coordinates;
+        for (var i=0; i<linestring.length; i++) {
+              linestring[i].reverse();
+            }
+        var layerLines = new ol.layer.Vector({
+          source: new ol.source.Vector({
+            features: [new ol.Feature({
+              geometry: new ol.geom.LineString(linestring).transform('EPSG:4326', 'EPSG:3857'),
+              name: 'Line',
+            })]
+          }),
+          style : new ol.style.Style({
+            stroke: new ol.style.Stroke({
+            color: '#d1410c',
+            width: 3
+            })
+          })
+          
+        });
+        var fetch_url = "https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?prox=" + prev[0] + "%2C" + prev[1] + "%2C250&mode=retrieveAddresses&maxresults=1&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs";
+        fetch(fetch_url, fetchData)
+        .then(response => response.json())
+        .then(data => {
+          var name = data.Response.View[0].Result[0].Location.Address.District + ", " + data.Response.View[0].Result[0].Location.Address.AdditionalData[1].value;
+          var element = document.createElement('div');
+          element.classList.add("pin");
+
+          element.innerHTML = '<a id ="landmark_pop" tabindex="0" data-toggle="popover" role = "button" > <img class = "pin" src="https://img.icons8.com/color/96/000000/marker.png"/></a>';
+          var marker = new ol.Overlay({
+            position:  ol.proj.transform([prev[1], prev[0]], 'EPSG:4326','EPSG:3857'),
+            positioning: 'center-center',
+            element:element
+
+          });
+          map.addOverlay(marker);
+          // $(function () {
+          //   var object = '<a href = "/landmark/' + data.Response.View[0].Result[0].MatchLevel + "/" + name + '">' + name + '</a>';
+          //   var image = document.createElement("img");
+          //   image.classList.add("popover_img");
+          //   fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + name;
+          //   fetch(fetch_url, fetchData)
+          //   .then(response => response.json())
+          //   .then(data => {
+          //       image.setAttribute("src", data.items[0].srcset[0].src);
+          //   })
+          //   var cnt = document.createElement('div');
+          //   var row = document.createElement('div');
+          //   row.classList.add('row');
+          //   var col1 = document.createElement('div');
+          //   col1.classList.add('col');
+          //   col1.appendChild(image);
+          //   var col2 = document.createElement('div');
+          //   col2.classList.add('col'); 
+          //   var  para = document.createElement('p');
+          //   para.innerText = data.Response.View[0].Result[0].Location.Address.Label;
+          //   col2.appendChild(para);
+          //   row.appendChild(col1);
+          //   row.appendChild(col2);
+          //   cnt.appendChild(row);
+          //   $('#landmark_pop').popover({title: object,  trigger: 'hover | focus', html: true, content : cnt});
+          // })
+        })
+        map.addLayer(layerLines);   
+      })
+    }
+  }
 
  map.on('singleclick', function (evt) {
 
@@ -365,7 +493,6 @@
    map.getView().setZoom(14);
 
   });
-
 
 
 var accuracyFeature = new ol.Feature();
@@ -537,6 +664,8 @@ document.getElementById("toggle-btn").onclick = function() {
     })
 }
 
+
+
 function getLocation() {
     navigator.geolocation.getCurrentPosition(showPosition);
 }
@@ -637,75 +766,184 @@ document.getElementById("search_btn").onclick = function() {
 
 }
 // AmiufPk0e3QV0l2SC-0A-XBgPH3rd6dCMmgyfyumfhh35u3BMjbY_4SXA70aOEtA Bing Api Key
-document.getElementById("route").addEventListener("click", function(){
-  var coordinates = [[16832505.12095191, -4011613.961964385],[16832505.12095191, -4111613.961964385]];
-  var start = ol.proj.transform(coordinates[0], 'EPSG:3857', 'EPSG:4326').reverse().toString();
-  var end = ol.proj.transform(coordinates[1], 'EPSG:3857', 'EPSG:4326').reverse().toString();
-  const bingKey = "AmiufPk0e3QV0l2SC-0A-XBgPH3rd6dCMmgyfyumfhh35u3BMjbY_4SXA70aOEtA";
-  var url = "https://dev.virtualearth.net/REST/v1/Routes?wp.0=" + start + "&wp.1=" + end +
-            "&routeAttributes=routePath&key=" + bingKey;
-  console.log(url)
-
-  fetch(url)
-  .then(response=>response.json())
-  .then(data => {
-    console.log(data)
-    var linestring = data.resourceSets[0].resources[0].routePath.line.coordinates;
-    for (var i=0; i<linestring.length; i++) {
-          linestring[i].reverse();
-        }
-    var layerLines = new ol.layer.Vector({
-      source: new ol.source.Vector({
-        features: [new ol.Feature({
-          geometry: new ol.geom.LineString(linestring).transform('EPSG:4326', 'EPSG:3857'),
-          name: 'Line',
-        })]
-      }),
-      style : new ol.style.Style({
-        stroke: new ol.style.Stroke({
-        color: '#d1410c',
-        width: 3
-    })
-      })
+// document.getElementById("route").addEventListener("click", function(){
+//   var coordinates = [[16832505.12095191, -4011613.961964385],[16832505.12095191, -4111613.961964385]];
+//   var start = ol.proj.transform(coordinates[0], 'EPSG:3857', 'EPSG:4326').reverse().toString();
+//   var end = ol.proj.transform(coordinates[1], 'EPSG:3857', 'EPSG:4326').reverse().toString();
+//   const bingKey = "AmiufPk0e3QV0l2SC-0A-XBgPH3rd6dCMmgyfyumfhh35u3BMjbY_4SXA70aOEtA";
+//   var url = "https://dev.virtualearth.net/REST/v1/Routes?wp.0=" + start + "&wp.1=" + end +
+//             "&routeAttributes=routePath&key=" + bingKey;
+//   console.log(url)
+//   var trip_planner = JSON.parse('{{ trip_planner | tojson | safe }}');
+//   console.log(trip_planner)
+//   fetch(url)
+//   .then(response=>response.json())
+//   .then(data => {
+//     console.log(data)
+//     var linestring = data.resourceSets[0].resources[0].routePath.line.coordinates;
+//     for (var i=0; i<linestring.length; i++) {
+//           linestring[i].reverse();
+//         }
+//     var layerLines = new ol.layer.Vector({
+//       source: new ol.source.Vector({
+//         features: [new ol.Feature({
+//           geometry: new ol.geom.LineString(linestring).transform('EPSG:4326', 'EPSG:3857'),
+//           name: 'Line',
+//         })]
+//       }),
+//       style : new ol.style.Style({
+//         stroke: new ol.style.Stroke({
+//         color: '#d1410c',
+//         width: 3
+//     })
+//       })
       
-    });
-    map.addLayer(layerLines);   
+//     });
+//     map.addLayer(layerLines);   
 
-  })
+//   })
 
+// });
+// // current lon, lat
+// const coord = [-33.870453, 151.208755];
 
-  // var xhr = new XMLHttpRequest();
+// var dummy_data = [
+//   {
+//     'coordinate': [-34.425072, 150.893143],
+//     'name': 'wollongong',
+//     'cost': null,
+//     'index': null
+//   },
+//   {
+//     'coordinate': [-33.91439,151.24895],
+//     'name': 'randwick',
+//     'cost': null,
+//     'index': null
+//   },
+  
+//   {
+//     'coordinate': [-35.282001, 149.128998],
+//     'name': 'Canberra',
+//     'cost': null,
+//     'index': null
+//   }
+// ]
+// // travelling salesman problem
 
-  // xhr.onreadystatechange = function() {
-  //   if (xhr.readyState == 4) {
-  //     if (xhr.status == 200) {
-  //       var linestring = JSON.parse(xhr.responseText).resourceSets[0].resources[0].routePath.line.coordinates;
-  //       for (var i=0; i<linestring.length; i++) {
-  //         linestring[i].reverse();
-  //       }
-  //       var layerLines = new ol.layer.Vector({
-  //         source: new ol.source.Vector({
-  //           features: [new ol.Feature({
-  //             geometry: new ol.geom.LineString(linestring).transform('EPSG:4326', 'EPSG:3857'),
-  //             name: 'Line'
-  //           })]
-  //         }),
-  //       });
-  //       map.addLayer(layerLines);   
-  //     }
-  //   }
-  // }
+// var fetch_url = "https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?origins=-33.870453, 151.208755&destinations=-33.91439,151.24895;-34.425072, 150.893143;-35.282001, 149.128998&travelMode=driving&distanceUnit=km&key=AmiufPk0e3QV0l2SC-0A-XBgPH3rd6dCMmgyfyumfhh35u3BMjbY_4SXA70aOEtA";
+// fetch(fetch_url)
+// .then(response => response.json())
+// .then(data => {
+
+//   destinations = data.resourceSets[0].resources[0].destinations;
+//   distance_matrix = data.resourceSets[0].resources[0].results;
+//   console.log(destinations)
+//   for (var i = 0; i < dummy_data.length; i++) {
+//     for (var j = 0; j < dummy_data.length; j++) {
+//       if (dummy_data[i].coordinate[0] == destinations[j].latitude && dummy_data[i].coordinate[1] == destinations[j].longitude) {
+//         dummy_data[i].index = j;
+//         break;
+//       }
+    
+//     }
+//   }
+//   for (var i = 0; i < dummy_data.length; i++) {
+//     for (var j = 0; j < dummy_data.length; j++) {
+//       if (dummy_data[i].index == distance_matrix[j].destinationIndex) {
+//         dummy_data[i].cost = distance_matrix[j].travelDistance;
+//         break;
+//       }
+//     }
+//   }
+//   // now sort the data by cost
+//   var i, j; 
+//   for (i = 0; i < dummy_data.length-1; i++) {        
+//     for (j = 0; j < dummy_data.length-i-1; j++) { 
+//       if (dummy_data[j].cost > dummy_data[j+1].cost) {
+//         var temp = dummy_data[j];
+//         dummy_data[j] = dummy_data[j+1];
+//         dummy_data[j+1] = temp;
+//       }
+//     }
+//   }
+// console.log(dummy_data)
+
+//   // console.log(data)
+//   // for (var result of data.resourceSets[0].resources.destinations) {
+//   //   console.log(result)
   
 
-  // xhr.open("GET", url, true);
-  // xhr.timeout = 3000;
-  // xhr.send();
+//   // }
+// })
 
-});
+
 
   
 
+//Bookmark functionality
+function remove_bookmark(el, landmark){
+  var elem = document.getElementById('bookmark-' + landmark);
+  $.post("/rm_bookmark", {
+      landmark : landmark
+  });
+  elem.parentNode.removeChild(elem);
+  var list = document.getElementById('bookmark_list')
+  if (list.childElementCount == 0){
+    list.parentNode.innerHTML = "You do not have any bookmarks."
+  }
+};
 
+// Add a button to add more landmarks to planner 
+function planner_more_landmarks() {
+  var plannerLandmarks = document.getElementsByClassName("planner-landmark");
+  var holder = document.getElementById('add-landmark-holder');
+  holder.innerHTML = ""
+  console.log(holder)
+
+  if (plannerLandmarks.length < 4) {
+    var btn = document.createElement("button");
+    btn.setAttribute("type", "button");
+    btn.className = "btn btn-link p-0";
+    btn.setAttribute("id", "add-landmark");
+    btn.innerText = "Add another landmark to the trip";
+    holder.appendChild(btn);
+    
+    btn.onclick = add_landmark_input;
+  }
+}
+
+// Run function when page loads 
+document.addEventListener('DOMContentLoaded', planner_more_landmarks);
+
+function add_landmark_input() {
+  var nextLandmarkNum = document.getElementsByClassName('planner-landmark').length + 1;
+  var nextLandmark = 'landmark'.concat(nextLandmarkNum);
+  console.log(nextLandmark);
+
+  var label = document.createElement('label');
+  label.setAttribute('for', nextLandmark);
+  label.innerText = 'Landmark '.concat(nextLandmarkNum);
+
+  var input = document.createElement('input');
+  input.className = "form-control planner-landmark";
+  input.setAttribute('id', nextLandmark);
+  input.setAttribute('name', nextLandmark);
+  if (nextLandmarkNum == 3) {
+    input.setAttribute('placeholder', 'Third landmark of the trip')
+  } else if (nextLandmarkNum == 4){
+    input.setAttribute('placeholder', 'Fourth landmark of the trip')
+  }
+
+  var br = document.createElement('br')
+  
+
+  var group = document.getElementById('planner-landmark-group')
+  group.appendChild(label)
+  group.appendChild(input)
+  group.appendChild(br)
+
+  planner_more_landmarks()
+}
 
     </script>
 </body>
