@@ -10,7 +10,7 @@
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-    <title>Landmark</title>
+    <title>Landmark Explorer</title>
 
     <style>
         .bg  {
@@ -107,6 +107,18 @@
             color: #f8ce0b;
         }
 
+        .news-scrolling {
+            overflow: auto;
+            min-height: 70px;
+            max-height: 200px;
+        }
+
+        .events-scrolling {
+            overflow: auto;
+            min-height: 100px;
+            max-height: 500px;
+        }
+
     </style>
 </head>
 <body>
@@ -140,7 +152,7 @@
                     <div class="col-2 p-4">
                         {% if current_user.is_authenticated %}
                             <form id="bookmark_form">
-                                <button type="submit" class="btn btn-primary float-right" id="bookmark_btn">Bookmark</button>
+                                <button type="submit" class="btn btn-primary float-right" id="bookmark_btn" data-toggle="modal" data-target="#bookmark_modal">Bookmark</button>
                                 <input type="hidden" name="landmark_name" value="{{ name }}"> 
                                 <input type="hidden" name="category" id="categoryhidden" value="{{ category }}"> 
                             </form>
@@ -166,17 +178,19 @@
                                     </ul>
                                 </div>
                             </div>
-                            <ul class = "list-group  d-block">
-                                {% for item in events %}
-                                <a href="{{item.url}}">
-                                    <li class = "list-group-item li_item">
-                                        <small style="color:rgb(209, 65, 12);">{{item.date}}</small>
-                                        <h5> {{item.title}} </h5>
-                                        <p style="text-overflow: ellipsis">{{item.addr}}</p>
-                                    </li>
-                                </a>
-                                {% endfor %}
-                            </ul>
+                            <div class="container-fluid events-scrolling">
+                                <ul class = "list-group  d-block">
+                                    {% for item in events %}
+                                    <a href="{{item.url}}">
+                                        <li class = "list-group-item li_item">
+                                            <small style="color:rgb(209, 65, 12);">{{item.date}}</small>
+                                            <h5> {{item.title}} </h5>
+                                            <p style="text-overflow: ellipsis">{{item.addr}}</p>
+                                        </li>
+                                    </a>
+                                    {% endfor %}
+                                </ul>
+                            </div>
                         </div>
                     </div>
                     <div class = "row p-2">
@@ -196,7 +210,7 @@
                             <div class="d-flex justify-content-left p-2">
                                 <h4>News</h4>
                             </div>
-                            <div class="container-fluid">
+                            <div class="container-fluid news-scrolling">
                                 <ul class="list-group" id="news_list"></ul>
                                 <br>
                             </div>
@@ -300,6 +314,20 @@
                         </div>
                     </div>
                 </div>
+
+                <div class="modal fade" id="bookmark_modal" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                Bookmark added
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+
             </div>
         </div>
 
@@ -383,7 +411,6 @@
             landmark: landmark,
             "category": category
         });
-        alert("Bookmark has been added");
     });
 
     $(".add-review").click(function() {
