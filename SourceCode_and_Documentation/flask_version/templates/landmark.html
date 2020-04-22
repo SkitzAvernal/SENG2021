@@ -395,7 +395,7 @@
             for (i = 0; i < data.totalResults && i < 5; i++) {
                 article = data.articles[i]
                 const articleLi = document.createElement("li");
-                articleLi.className = "list-group-item";
+                articleLi.className = "list-group-item li_item";
                 const a = document.createElement("a");
                 a.href = article.url
                 const title = document.createElement("h5");
@@ -404,8 +404,9 @@
                 description.innerText = article.description
 
                 a.appendChild(title)
+                a.appendChild(description)
                 articleLi.appendChild(a)
-                articleLi.appendChild(description)
+                // articleLi.appendChild(description)
                 newsUl.appendChild(articleLi)
                 console.log(data.articles[i].title)
             }
