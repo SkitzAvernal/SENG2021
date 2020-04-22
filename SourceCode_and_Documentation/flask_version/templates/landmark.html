@@ -171,24 +171,28 @@
                             </div>
                             <div class="container-fluid events-scrolling">
                                 <ul class = "list-group  d-block" id="events">
-                                    {% for item in events %}
-                                        <li class = "list-group-item li_item">
-                                            <table width="100%">
-                                            	<td width ="90%">
-                                            		<a href="{{item.url}}">
-		                                                <small style="color:rgb(209, 65, 12);">{{item.date}}</small>
-		                                                <h5> {{item.title}} </h5>
-		                                                <p style="text-overflow: ellipsis">{{item.addr}}</p>
-                                            		</a>
-                                            	</td>
-                                            	<td width="10%">
-                                            		{% if current_user.is_authenticated %}
-                                                    	<button type="submit" class="material-icons list-group-item" onclick="add_event(this, name='{{item.title}}', date='{{item.date}}', url='{{item.url}}')" data-toggle="modal" data-target="#event_modal">event</button>
-                                                	{% endif %}
-                                            	</td>
-                                            </table>
-                                        </li>
-                                    {% endfor %}
+                                    {% if events %}
+                                        {% for item in events %}
+                                            <li class = "list-group-item li_item">
+                                                <table width="100%">
+                                                	<td width ="90%">
+                                                		<a href="{{item.url}}">
+    		                                                <small style="color:rgb(209, 65, 12);">{{item.date}}</small>
+    		                                                <h5> {{item.title}} </h5>
+    		                                                <p style="text-overflow: ellipsis">{{item.addr}}</p>
+                                                		</a>
+                                                	</td>
+                                                	<td width="10%">
+                                                		{% if current_user.is_authenticated %}
+                                                        	<button type="submit" class="material-icons list-group-item" onclick="add_event(this, name='{{item.title}}', date='{{item.date}}', url='{{item.url}}')" data-toggle="modal" data-target="#event_modal">event</button>
+                                                    	{% endif %}
+                                                	</td>
+                                                </table>
+                                            </li>
+                                        {% endfor %}
+                                    {% else%}
+                                        <li class="list-group-item">No events for this landmark</li>
+                                    {% endif%}
                                 </ul>
                             </div>
                         </div>
