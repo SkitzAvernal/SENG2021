@@ -468,7 +468,7 @@ def landmark(category, lm_name):
 
     # get reviews
     reviewForm = ReviewForm()
-    reviews = Review.query.filter_by(landmark=lm_name).order_by(desc(Review.timestamp)).all()
+    reviews = Review.query.filter_by(landmark=news_name).order_by(desc(Review.timestamp)).all()
     # print(reviews)
     return render_template('landmark.html',
                            name=news_name,
