@@ -151,11 +151,9 @@
                     </div>
                     <div class="col-2 p-4">
                         {% if current_user.is_authenticated %}
-                            <form id="bookmark_form">
-                                <button type="submit" class="btn btn-primary float-right" id="bookmark_btn" data-toggle="modal" data-target="#bookmark_modal">Bookmark</button>
-                                <input type="hidden" name="landmark_name" value="{{ name }}"> 
-                                <input type="hidden" name="category" id="categoryhidden" value="{{ category }}"> 
-                            </form>
+                            <button type="submit" class="btn btn-primary float-right" id="bookmark_btn" data-toggle="modal" data-target="#bookmark_modal">Bookmark</button>
+                            <input type="hidden" name="landmark_name" value="{{ name }}"> 
+                            <input type="hidden" name="category" id="categoryhidden" value="{{ category }}"> 
                         {% endif %}
                     </div>
                 </div>
@@ -170,24 +168,21 @@
                                 <div class="p-2">
                                     <h4 >Events</h4>
                                 </div>
-                                <div class="mr-auto p-2">
-                                    <ul class="pagination">
-                                        <li class="page-item">
-                                            <a class="page-link material-icons" href="#">navigate_next</a>
-                                        </li>
-                                    </ul>
-                                </div>
                             </div>
                             <div class="container-fluid events-scrolling">
-                                <ul class = "list-group  d-block">
+                                <ul class = "list-group  d-block" id="events">
                                     {% for item in events %}
-                                    <a href="{{item.url}}">
                                         <li class = "list-group-item li_item">
-                                            <small style="color:rgb(209, 65, 12);">{{item.date}}</small>
-                                            <h5> {{item.title}} </h5>
-                                            <p style="text-overflow: ellipsis">{{item.addr}}</p>
+                                            <a href="{{item.url}}">
+                                            
+                                                <small style="color:rgb(209, 65, 12);">{{item.date}}</small>
+                                                <h5> {{item.title}} </h5>
+                                                <p style="text-overflow: ellipsis">{{item.addr}}</p>
+                                            </a>
+                                                {% if current_user.is_authenticated %}
+                                                    <button type="submit" class="material-icons list-group-item" onclick="add_event(this, name='{{item.title}}', date='{{item.date}}', url='{{item.url}}')" data-toggle="modal" data-target="#event_modal">event</button>
+                                                {% endif %}
                                         </li>
-                                    </a>
                                     {% endfor %}
                                 </ul>
                             </div>
@@ -326,7 +321,16 @@
                     </div>
                 </div>
 
-
+                <div class="modal fade" id="event_modal" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                Event added
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
             </div>
         </div>
@@ -412,6 +416,14 @@
             "category": category
         });
     });
+
+    function add_event(e, name, date, url){
+        $.post("/events", {
+            name: name,
+            date: date,
+            url: url
+        });
+    };
 
     $(".add-review").click(function() {
         $(".option-error").html("");

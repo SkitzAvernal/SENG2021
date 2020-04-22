@@ -47,3 +47,14 @@ class Bookmark(db.Model):
 
     def __repr__(self):
         return '{}'.format(self.landmark)
+
+
+class Event(db.Model):
+	id = db.Column(db.Integer, primary_key=True)
+	username = db.Column(db.Integer, db.ForeignKey('user.username'), nullable=False)
+	name = db.Column(db.String(100), nullable=False)
+	date = db.Column(db.String(40))
+	url = db.Column(db.String(200), nullable=False)
+
+	def __repr__(self):
+		return ''

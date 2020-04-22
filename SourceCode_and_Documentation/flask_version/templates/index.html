@@ -113,6 +113,9 @@
           <a href = "#" id = "bookmark"><button class="btn btn-primary border my-2 my-sm-2" data-toggle="modal" data-target="#bookmark_modal"><span class = "material-icons">bookmarks</span></button>
         </li>
         <li class="nav-item px-2" style="display: inline-block;">
+          <a href = "#" id = "event"><button class="btn btn-primary border my-2 my-sm-2" data-toggle="modal" data-target="#event_modal"><span class = "material-icons">event</span></button>
+        </li>
+        <li class="nav-item px-2" style="display: inline-block;">
           <a href="{{ url_for('logout') }}"><button class="btn btn-primary border my-2 my-sm-2">Log Out</button></a>
         </li>
         {% endif %}
@@ -185,9 +188,47 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <!--{% if bookmarks %}
-          <button type="button" id="save_bookmark" class="btn btn-primary">Save changes</button>
-        {% endif %}-->
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal fade" id="event_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Interested Events</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% if events %}
+          <ul class ="list-group" id="event_list">
+            {% for event in events %}
+              <li class="list-group-item" id="{{'event-' + event.name}}" >
+                <table>
+                  <tr>
+                    <td>
+                      <a href="{{ event.url }}">
+                        <h5>{{event.name}}</h5>
+                        <p>{{event.date}}</p>
+                      </a> 
+                    </td>
+                    <td>
+                      <button type="button" onclick="remove_event(this, event_name='{{event.name}}')" class="close" aria-label="Close">&times;</button>
+                    </td>
+                  </tr>
+                </table>   
+              </li>  
+            {% endfor %}
+          </ul>
+          {% else %}
+            You do not have added any events.
+          {% endif %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
       </div>
     </div>
   </div>
@@ -240,6 +281,7 @@
                 </div>
                 <div id="add-landmark-holder" class="pb-3"></div>
                 {{ plannerForm.submit(class="btn btn-primary") }}
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" style="float: right">Close</button>
               </form>
           </div>
       </div>
@@ -353,7 +395,7 @@
   if (planner) {
 
     const planner_body = document.getElementById('planner_body');
-    var content = document.createElement('p');
+    var content = document.createElement('div');
    // add pins here
     var element = document.createElement('div');
     element.classList.add("pin");
@@ -381,12 +423,32 @@
     // colr = ['#16cc6e', '#d1410c', '#1a73f0', '#f28c1f', '#b8d404']
     // i = 0
     console.log(trip_planner)
-    var content_text = "";
+    //var content_text = "";
     for (var index of path) {
       for (var item of trip_planner) {
         if (item.index == index) {
           console.log(item.name)
-          content_text += item.name + "=>";
+          //content_text += item.name + "=>";
+          if (content.childElementCount == 0){
+            stop = document.createElement('div');
+            content.appendChild(stop)
+            title = document.createElement('h5');
+            title.innerHTML = "First stop";
+            place_name = document.createElement('a');
+            place_name.innerHTML = item.name;
+            stop.appendChild(title);
+            stop.appendChild(place_name);
+          } else {
+            stop = document.createElement('div');
+            content.appendChild(stop)
+            title = document.createElement('h5');
+            title.innerHTML = "Next stop";
+            place_name = document.createElement('p');
+            place_name.innerHTML = item.name;
+            stop.appendChild(title);
+            stop.appendChild(place_name);
+          }
+
           const bingKey = "AmiufPk0e3QV0l2SC-0A-XBgPH3rd6dCMmgyfyumfhh35u3BMjbY_4SXA70aOEtA";
           var url = "https://dev.virtualearth.net/REST/v1/Routes?wp.0=" + prev[0] + "," + prev[1] + "&wp.1=" + item.coordinate[0] + "," + item.coordinate[1] +
                     "&routeAttributes=routePath&key=" + bingKey;
@@ -423,7 +485,7 @@
         }
       }
     }
-    content.innerHTML = content_text;
+    //content.innerHTML = content_text;
     planner_body.appendChild(content);
     $('#planner_details').modal('show');
 
@@ -806,6 +868,20 @@ function remove_bookmark(el, landmark){
   var list = document.getElementById('bookmark_list')
   if (list.childElementCount == 0){
     list.parentNode.innerHTML = "You do not have any bookmarks."
+  }
+};
+
+//Event functionality
+function remove_event(el, event_name){
+  var elem = document.getElementById('event-' + event_name);
+  console.log(elem)
+  $.post("/rm_event", {
+      event: event_name
+  });
+  elem.parentNode.removeChild(elem);
+  var list = document.getElementById('event_list')
+  if (list.childElementCount == 0){
+    list.parentNode.innerHTML = "You do not have added any events."
   }
 };
 
