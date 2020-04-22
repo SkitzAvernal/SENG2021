@@ -616,9 +616,11 @@ def bookmark():
         return redirect(request.referrer)
     landmark = request.form.get('landmark')
     category = request.form.get('category')
-    exists = db.session.query(Bookmark.landmark).filter_by(username=current_user.username).scalar()
+    exists = db.session.query(Bookmark.landmark).filter_by(username=current_user.username, landmark=landmark).scalar()
     if exists is not None:
+        print('hi')
         return redirect(request.referrer)
+
     bookmark = Bookmark(username=current_user.username, landmark=landmark, category=category)
     db.session.add(bookmark)
     db.session.commit()
