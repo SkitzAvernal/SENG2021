@@ -635,7 +635,7 @@
 
   document.getElementById('random').addEventListener('click', function () {
     var rand = getNumber();
-    $.getJSON('static/places.json', function(data) {
+    $.getJSON('/static/places.json', function(data) {
      var rando_location = data.places[rand]
      document.getElementById("search-landmark").value = rando_location;
      document.getElementById("search_btn").click();
