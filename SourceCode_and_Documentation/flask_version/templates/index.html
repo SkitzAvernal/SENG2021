@@ -1,12 +1,13 @@
 <html>
 
  <head>
-    <title>OpenLayers</title>
+    <title>Landmark Explorer</title>
     <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/build/ol.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.2.1/css/ol.css">
     <script src="https://cdn.rawgit.com/kikocorreoso/map2wiki/master/src/static/brython_dist.js"></script>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.0/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
@@ -67,6 +68,26 @@
         height: 100px;
         width:120px;
       }
+      #loading {
+        width: 100%;
+        height: 100%;
+        top: 0;
+        left: 0;
+        position: fixed;
+        display: block;
+        opacity: 0.7;
+        background-color: #fff;
+        z-index: 99;
+        text-align: center;
+      }
+
+      #loading-image {
+        position: absolute;
+        top: 40%;
+        left: 45%;
+        z-index: 100;
+      }
+
 
 
 
@@ -81,18 +102,25 @@
       <a  href="{{ url_for('signup') }}"><button class="btn btn-primary border my-2 my-sm-2">Sign Up</button></a>
     {% endif %}
 
-    <a class="navbar-brand">LANDMARK EXPLORER</a>
+    <a class="navbar-brand pl-4">LANDMARK EXPLORER</a>
 
-      {% if not current_user.is_anonymous %}
-      <ul class="navbar-nav">
-      <li class="nav-item">
-        <a href = "#" id = "bookmark"><button class="btn btn-primary border my-2 my-sm-2" data-toggle="modal" data-target="#bookmark_modal"><span class = "material-icons">bookmarks</span></button>
-
-        <a href="{{ url_for('logout') }}"><button class="btn btn-primary border my-2 my-sm-2">Log Out</button></a>
+    <ul class="navbar-nav ml-auto" style="display: inline-block;">
+      <li class="nav-item px-2" style="display: inline-block;">
+        <button class="btn btn-primary border" id="planner_btn" data-toggle="modal" data-target="#planner-modal">Plan a trip</button>
       </li>
+        {% if not current_user.is_anonymous %}
+        <li class="nav-item px-2" style="display: inline-block;">
+          <a href = "#" id = "bookmark"><button class="btn btn-primary border my-2 my-sm-2" data-toggle="modal" data-target="#bookmark_modal"><span class = "material-icons">bookmarks</span></button>
+        </li>
+        <li class="nav-item px-2" style="display: inline-block;">
+          <a href = "#" id = "event"><button class="btn btn-primary border my-2 my-sm-2" data-toggle="modal" data-target="#event_modal"><span class = "material-icons">event</span></button>
+        </li>
+        <li class="nav-item px-2" style="display: inline-block;">
+          <a href="{{ url_for('logout') }}"><button class="btn btn-primary border my-2 my-sm-2">Log Out</button></a>
+        </li>
+        {% endif %}
 
 
-      {% endif %}
     </ul>
     {% if current_user.is_anonymous %}
     <form class="form-inline my-2 my-lg-0 needs-validation" action="{{ url_for('login') }}" method="POST">
@@ -144,14 +172,130 @@
         </button>
       </div>
       <div class="modal-body">
-        You do not have any bookmarks.
+        {% if bookmarks %}
+          <ul class ="list-group" id="bookmark_list">
+            {% for bookmark in bookmarks %}
+              <li class="list-group-item" id="{{'bookmark-' + bookmark.landmark}}" >
+                <a href="{{url_for('landmark', lm_name=bookmark.landmark, category=bookmark.category)}}">{{bookmark.landmark}}</a>
+                <button type="button" onclick="remove_bookmark(this, landmark = '{{bookmark.landmark}}')" class="close" aria-label="Close">&times;
+                </button>
+              </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+            You do not have any bookmarks.
+          {% endif %}
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary">Save changes</button>
       </div>
     </div>
   </div>
+</div>
+
+<div class="modal fade" id="event_modal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Interested Events</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        {% if events %}
+          <ul class ="list-group" id="event_list">
+            {% for event in events %}
+              <li class="list-group-item" id="{{'event-' + event.name}}" >
+                <table width="100%">
+                  <tr>
+                    <td width="95%">
+                      <a href="{{ event.url }}">
+                        <h5>{{event.name}}</h5>
+                        <p>{{event.date}}</p>
+                      </a>
+                    </td>
+                    <td width="5%">
+                      <button type="button" onclick="remove_event(this, event_name='{{event.name}}')" class="close" aria-label="Close">&times;</button>
+                    </td>
+                  </tr>
+                </table>
+              </li>
+            {% endfor %}
+          </ul>
+          {% else %}
+            You do not have added any events.
+          {% endif %}
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% if planner %}
+<div class="modal" tabindex="-1" role="dialog" id = "planner_details">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Your Trip</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="planner_body">
+
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
+
+
+
+<div class="modal fade" id="planner-modal" role="dialog">
+  <div class="modal-dialog">
+      <div class="modal-content">
+          <div class="modal-header">
+            <h4>Plan a trip</h4>
+          </div>
+          <div class="modal-body">
+              <form method="POST">
+                {{ plannerForm.hidden_tag() }}
+                {{ plannerForm.start.label }}
+                {{ plannerForm.start(class="form-control", placeholder="Starting place") }}
+                <br>
+                <div class="form-group" id="planner-landmark-group">
+                  {{ plannerForm.landmark1.label }}
+                  {{ plannerForm.landmark1(class="form-control planner-landmark", placeholder="First landmark of the trip") }}
+                  <br>
+                  {{ plannerForm.landmark2.label }}
+                  {{ plannerForm.landmark2(class="form-control planner-landmark", placeholder="Second landmark of the trip") }}
+                  <br>
+                </div>
+                <div id="add-landmark-holder" class="pb-3"></div>
+                {{ plannerForm.submit(class="btn btn-primary") }}
+                <button type="button" class="btn btn-secondary" data-dismiss="modal" style="float: right">Close</button>
+              </form>
+          </div>
+      </div>
+  </div>
+</div>
+<!-- <div id="loading" style="visibility:hidden" class="row justify-content-center align-items-center h-100">
+  <div class="col col-sm-6 col-md-6 col-lg-4 col-xl-3">
+    <img id="loading-image" src="/static/loader.gif" alt="Loading..." />
+  </div>
+</div> -->
+
+
+<div id="loading" style="visibility:hidden">
+    <img id="loading-image" src="/static/loader.gif" alt="Loading..." />
 </div>
 
 <div class = "content">
@@ -159,7 +303,10 @@
     <div style = "position: absolute; top: 80px; left: 50px; padding: 5px;">
             <button class = "btn btn-primary"><i class="material-icons " id = "random">take_me</i></button>
             <button class = "btn btn-primary"><i class="material-icons " id = "nearby-btn">near_me</i></button>
-            <button class = "btn btn-primary"><i class="material-icons " id = "current_loc">my_location</i></button>
+            <button class = " btn btn-primary"><i class="material-icons " id = "current_loc">my_location</i></button>
+            {% if planner %}
+            <button class="btn btn-primary border" id="planner_details_btn" data-toggle="modal" data-target="#planner_details">View My Trip</button>
+            {% endif %}
     </div>
     <div id="search"  style="position: absolute; top: 80px; right: 10px; padding: 5px">
 
@@ -190,9 +337,6 @@
         <header class="bs-canvas-header p-3 bg-primary overflow-auto">
             <button type="button" class="bs-canvas-close float-left close" aria-label="Close"><span aria-hidden="true" class="text-light">&times;</span></button>
             <h4 class="d-inline-block text-light mb-0 float-right">Places</h4>
-
-
-
         </header>
         <div class="bs-canvas-content px-3 py-5" >
             <table class = "table table-hover" >
@@ -209,6 +353,11 @@
     <script src = "/static/index.js"></script>
 
     <script>
+      var planner = JSON.parse('{{ planner | tojson | safe }}');
+      var trip_planner = JSON.parse('{{ trip_planner | tojson | safe }}');
+      var origin = JSON.parse('{{ planner_origin | tojson | safe }}');
+      var path = JSON.parse('{{ path | tojson | safe }}')
+      console.log(planner)
 
       if (localStorage.length != 0) {
         localStorage.removeItem("cur_lon");
@@ -238,6 +387,158 @@
      })
    ]
  });
+
+
+
+  // trip planner here
+  var prev = origin
+
+  if (planner) {
+
+    const planner_body = document.getElementById('planner_body');
+    var content = document.createElement('div');
+   // add pins here
+    var element = document.createElement('div');
+    element.classList.add("pin");
+    element.innerHTML = '<img class = "pin" src="https://img.icons8.com/color/96/000000/marker.png"/>';
+    var marker = new ol.Overlay({
+      position:  ol.proj.transform([origin[1], origin[0]], 'EPSG:4326','EPSG:3857'),
+      positioning: 'center-center',
+      element: element
+
+    });
+    map.addOverlay(marker);
+
+    for (var item of trip_planner) {
+      var data_to_send = {
+      'landmark': item.name,
+      'match_level': item.category
+      };
+
+      // ajax the JSON to the server
+      $.ajax({
+        type: "POST",
+        url: "/postmethod",
+        async: false,
+        contentType: "application/json",
+        data: JSON.stringify({jsdata: data_to_send}),
+        dataType: "json",
+        success: function(response) {
+          localStorage.removeItem('data');
+          localStorage.setItem('data', JSON.stringify(response));
+        },
+        error: function(err) {
+          console.log(err);
+        }
+      });
+
+      var pinelement = document.createElement('div');
+      pinelement.classList.add("landmark");
+      var pincontent = document.createElement("a");
+      pincontent.id = item.name;
+      pincontent.classList.add("lm");
+      pincontent.setAttribute("tabindex" ,"0");
+      pincontent.setAttribute("data-toggle" ,"popover");
+      pincontent.setAttribute("role" ,"button");
+
+      var pinobject = '<a href = "/landmark/' + item.category + "/" + item.name + ", " + item.addressAdditional + '">' + item.name + ", " + item.addressAdditional + '</a>';
+      pincontent.setAttribute("title", pinobject);
+      pincontent.innerHTML = '<img class="landmark_pin" src="https://img.icons8.com/color/96/000000/marker.png"/>';
+      pinelement.appendChild(pincontent);
+      var content_element = "<div><div class = 'row'><div class = 'col'><img src = '" + JSON.parse(localStorage.getItem('data')).image + "' class = 'popover_img'></div><div class = 'col'>" + item.addressLabel + "</div></div></div>";
+        pincontent.setAttribute("data-content", content_element);
+      var marker = new ol.Overlay({
+          position: ol.proj.transform([item.coordinate[1], item.coordinate[0]], 'EPSG:4326','EPSG:3857'),
+          positioning: 'center-center',
+          element: pinelement
+
+      });
+
+
+      map.addOverlay(marker);
+    }
+    $(function () {
+      $(".lm").popover({trigger: 'hover | focus', html: true});
+    });
+    // colr = ['#16cc6e', '#d1410c', '#1a73f0', '#f28c1f', '#b8d404']
+    // i = 0
+    console.log(trip_planner)
+    //var content_text = "";
+    var stopNumber = 1;
+    for (var index of path) {
+      console.log('stop number: ' + stopNumber)
+      // don't add last stop going back to the starting address -- not showed in route on map
+      if (stopNumber > trip_planner.length) {
+        break;
+      }
+      for (var item of trip_planner) {
+        if (item.index == index) {
+          console.log(item.name)
+          //content_text += item.name + "=>";
+          if (content.childElementCount == 0){
+            stop = document.createElement('div');
+            content.appendChild(stop)
+            title = document.createElement('h5');
+            title.innerHTML = "First stop";
+            place_name = document.createElement('p');
+            place_name.innerHTML = item.name;
+            stop.appendChild(title);
+            stop.appendChild(place_name);
+          } else {
+            stop = document.createElement('div');
+            stop.setAttribute('class', 'pb-3')
+            content.appendChild(stop)
+            title = document.createElement('h5');
+            title.innerHTML = "Next stop";
+            place_name = document.createElement('a');
+            place_name.innerHTML = item.name;
+            place_name.setAttribute('href', '/landmark/' + item.category + '/' + item.name)
+            stop.appendChild(title);
+            stop.appendChild(place_name);
+          }
+
+          const bingKey = "AmiufPk0e3QV0l2SC-0A-XBgPH3rd6dCMmgyfyumfhh35u3BMjbY_4SXA70aOEtA";
+          var url = "https://dev.virtualearth.net/REST/v1/Routes?wp.0=" + prev[0] + "," + prev[1] + "&wp.1=" + item.coordinate[0] + "," + item.coordinate[1] +
+                    "&routeAttributes=routePath&key=" + bingKey;
+          prev = item.coordinate;
+          console.log(url)
+          console.log(trip_planner)
+          fetch(url)
+          .then(response=>response.json())
+          .then(data => {
+            console.log(data)
+            var linestring = data.resourceSets[0].resources[0].routePath.line.coordinates;
+            for (var i=0; i<linestring.length; i++) {
+                  linestring[i].reverse();
+                }
+            var layerLines = new ol.layer.Vector({
+              source: new ol.source.Vector({
+                features: [new ol.Feature({
+                  geometry: new ol.geom.LineString(linestring).transform('EPSG:4326', 'EPSG:3857'),
+                  name: 'Line',
+                })]
+              }),
+              style : new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                // color: colr[i],
+                width: 3
+                })
+              })
+
+            });
+            i += 1
+            map.addLayer(layerLines);
+          })
+          break;
+        }
+      }
+      stopNumber += 1;
+    }
+    //content.innerHTML = content_text;
+    planner_body.appendChild(content);
+    $('#planner_details').modal('show');
+
+  }
 
  map.on('singleclick', function (evt) {
 
@@ -392,82 +693,101 @@ new ol.layer.Vector({
   })
 });
 
+
+
 document.getElementById("nearby-btn").onclick = function() {
+
+  document.getElementById("loading").style.visibility = "visible";
 
   var elements = document.getElementsByClassName("landmark");
   while(elements.length > 0){
       elements[0].parentNode.removeChild(elements[0]);
   }
 
-
-    var fetch_url = 'https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?apiKey=4ZRwHTCnCEe1HV3smhin6xJBjTP9r8zwWyZz-8rM3a4&mode=retrieveLandmarks&prox=' + localStorage.getItem('cur_lat') + ',' + localStorage.getItem('cur_lon') + ',100000';
+     var fetch_url = 'https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?apiKey=4ZRwHTCnCEe1HV3smhin6xJBjTP9r8zwWyZz-8rM3a4&mode=retrieveLandmarks&prox=' + localStorage.getItem('cur_lat') + ',' + localStorage.getItem('cur_lon') + ',100000';
     fetch(fetch_url)
 
 
     .then(response => response.json())
     .then(data => {
-
+        var i = 0;
         for (var result of data.Response.View[0].Result) {
-                    console.log(result)
-                    if (result.Location.Address.District != null) {
-                      city = result.Location.Address.District;
-                    }
-                    else {
-                      city = result.Location.Address.City;
-                    }
-                    var element = document.createElement('div');
-                    element.classList.add("landmark");
-                    var content = document.createElement("a");
-                    content.id = result.Location.Name;
-                    content.classList.add("lm");
-                    content.setAttribute("tabindex" ,"0");
-                    content.setAttribute("data-toggle" ,"popover");
-                    content.setAttribute("role" ,"button");
-                    // content
+
+          if (i >= 5) {
+            break;
+          }
+
+            var data_to_send = {
+              'landmark': result.Location.Name,
+              'match_level': data.Response.View[0].Result[0].MatchLevel,
+            };
+
+            // ajax the JSON to the server
+            $.ajax({
+              type: "POST",
+              url: "/postmethod",
+              async: false,
+              contentType: "application/json",
+              data: JSON.stringify({jsdata: data_to_send}),
+              dataType: "json",
+              success: function(response) {
+                localStorage.removeItem('data');
+                localStorage.setItem('data', JSON.stringify(response));
+              },
+              error: function(err) {
+                console.log(err);
+              }
+            });
+            console.log(result)
+            if (result.Location.Address.District != null) {
+              city = result.Location.Address.District;
+            }
+            else {
+              city = result.Location.Address.City;
+            }
+            var element = document.createElement('div');
+
+            element.classList.add("landmark");
+            var content = document.createElement("a");
+            content.id = result.Location.Name;
+            content.classList.add("lm");
+            content.setAttribute("tabindex" ,"0");
+            content.setAttribute("data-toggle" ,"popover");
+            content.setAttribute("role" ,"button");
+            // content
 
 
 
-                    // Title
-                    var object = '<a href = "/landmark/' + data.Response.View[0].Result[0].MatchLevel + "/" + result.Location.Name + ", " + city + '">' + result.Location.Name + ", " + city + '</a>';
-                    content.setAttribute("title", object);
-                    content.innerHTML = '<img class="landmark_pin" src="/static/landmark.png"/>';
-                    element.appendChild(content);
-                    var marker = new ol.Overlay({
-                        position: ol.proj.transform([result.Location.DisplayPosition.Longitude, result.Location.DisplayPosition.Latitude], 'EPSG:4326','EPSG:3857'),
-                        positioning: 'center-center',
-                        element:element
+            // Title
+            var object = '<a href = "/landmark/' + data.Response.View[0].Result[0].MatchLevel + "/" + result.Location.Name + ", " + city + '">' + result.Location.Name + ", " + city + '</a>';
+            content.setAttribute("title", object);
+            content.innerHTML = '<img class="landmark_pin" src="/static/landmark.png"/>';
+            element.appendChild(content);
+            var content_element = "<div><div class = 'row'><div class = 'col'><img src = '" + JSON.parse(localStorage.getItem('data')).image + "' class = 'popover_img'></div><div class = 'col'>" + result.Location.Address.Label + "</div></div></div>";
+              content.setAttribute("data-content", content_element);
+            var marker = new ol.Overlay({
+                position: ol.proj.transform([result.Location.DisplayPosition.Longitude, result.Location.DisplayPosition.Latitude], 'EPSG:4326','EPSG:3857'),
+                positioning: 'center-center',
+                element:element
 
-                    });
-                    fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + result.Location.Name + ", " + city;
-                    fetch(fetch_url)
-                    .then(r => {
+            });
 
-                      if (r.ok) {
-                        return r.json();
-                      }
 
-                      else {
-                        content.setAttribute("data-content", result.Location.Address.Label);
-                        return Promise.reject('some error happend maybe 404');
-                      }
-                    })
-                    .then(d => {
-                      console.log('here')
-                      var content_element = "<div><div class = 'row'><div class = 'col'><img src = '" + d.items[0].srcset[0].src + "' class = 'popover_img'></div><div class = 'col'>" + result.Location.Address.Label + "</div></div></div>";
-                      content.setAttribute("data-content", content_element);
-                    })
-                    .catch(error => {
-                      content.setAttribute("data-content", result.Location.Address.Label);
-                    })
-
-                    map.addOverlay(marker);
+            map.addOverlay(marker);
+            i += 1;
         }
         $(function () {
 
           $(".lm").popover({trigger: 'hover | focus', html: true});
         });
+        document.getElementById("loading").style.visibility = "hidden";
+
     })
+    // document.getElementById("loading").style.visibility = "hidden";
+
 }
+
+
 var tb = document.getElementById('places_tb');
 
 document.getElementById("toggle-btn").onclick = function() {
@@ -503,6 +823,8 @@ document.getElementById("toggle-btn").onclick = function() {
     })
 }
 
+
+
 function getLocation() {
     navigator.geolocation.getCurrentPosition(showPosition);
 }
@@ -520,6 +842,8 @@ function getNumber() {
 
 document.getElementById("search_btn").onclick = function() {
 
+  document.getElementById("loading").style.visibility = "visible";
+
   var elements = document.getElementsByClassName("pin");
   while(elements.length > 0){
       elements[0].parentNode.removeChild(elements[0]);
@@ -529,18 +853,17 @@ document.getElementById("search_btn").onclick = function() {
       elements[0].parentNode.removeChild(elements[0]);
   }
 
-
   var search_landmark = document.getElementById("search-landmark").value;
+
+  // create a json object here to pass it to the backend
+
   var fetch_url = 'https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext=' + search_landmark + '&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs';
   fetch(fetch_url, fetchData)
   .then(response => response.json())
   .then(data => {
-    console.log(data)
     var result = data.Response.View[0].Result[0].Location.DisplayPosition;
     var element = document.createElement('div');
     element.classList.add("pin");
-
-
     element.innerHTML = '<a id ="landmark_pop" tabindex="0" data-toggle="popover" role = "button" > <img class = "pin" src="https://img.icons8.com/color/96/000000/marker.png"/></a>';
     var marker = new ol.Overlay({
         position: ol.proj.transform([result.Longitude, result.Latitude], 'EPSG:4326','EPSG:3857'),
@@ -548,16 +871,34 @@ document.getElementById("search_btn").onclick = function() {
         element:element
 
     });
+    var data_to_send = {
+      'landmark': search_landmark,
+      'match_level': data.Response.View[0].Result[0].MatchLevel
+
+    };
+
+	// ajax the JSON to the server
+  $.ajax({
+    type: "POST",
+    url: "/postmethod",
+    async: false,
+    contentType: "application/json",
+    data: JSON.stringify({jsdata: data_to_send}),
+    dataType: "json",
+    success: function(response) {
+        localStorage.removeItem('data');
+        localStorage.setItem('data', JSON.stringify(response));
+      },
+    error: function(err) {
+        console.log(err);
+      }
+    });
     $(function () {
       var object = '<a href = "/landmark/' + data.Response.View[0].Result[0].MatchLevel + "/" + search_landmark + ", " + data.Response.View[0].Result[0].Location.Address.AdditionalData[1].value + '">' + search_landmark + ", " + data.Response.View[0].Result[0].Location.Address.AdditionalData[1].value+ '</a>';
       var image = document.createElement("img");
       image.classList.add("popover_img");
-      fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + search_landmark + ", " + data.Response.View[0].Result[0].Location.Address.AdditionalData[1].value;
-      fetch(fetch_url, fetchData)
-      .then(response => response.json())
-      .then(data => {
-          image.setAttribute("src", data.items[0].srcset[0].src);
-      })
+      console.log( JSON.parse(localStorage.getItem('data')).image)
+      image.setAttribute("src", JSON.parse(localStorage.getItem('data')).image);
       var cnt = document.createElement('div');
       var row = document.createElement('div');
       row.classList.add('row');
@@ -575,14 +916,95 @@ document.getElementById("search_btn").onclick = function() {
       $('#landmark_pop').popover({title: object,  trigger: 'hover | focus', html: true, content : cnt});
     })
     map.addOverlay(marker);
+    document.getElementById("loading").style.visibility = "hidden";
     map.getView().setCenter(ol.proj.transform([result.Longitude, result.Latitude], 'EPSG:4326','EPSG:3857'));
     map.getView().setZoom(14);
     localStorage.setItem('cur_lon', data.Response.View[0].Result[0].Location.DisplayPosition.Longitude.toString());
     localStorage.setItem('cur_lat', data.Response.View[0].Result[0].Location.DisplayPosition.Latitude.toString());
   })
+
 }
 
 
+
+//Bookmark functionality
+function remove_bookmark(el, landmark){
+  var elem = document.getElementById('bookmark-' + landmark);
+  $.post("/rm_bookmark", {
+      landmark : landmark
+  });
+  elem.parentNode.removeChild(elem);
+  var list = document.getElementById('bookmark_list')
+  if (list.childElementCount == 0){
+    list.parentNode.innerHTML = "You do not have any bookmarks."
+  }
+};
+
+//Event functionality
+function remove_event(el, event_name){
+  var elem = document.getElementById('event-' + event_name);
+  console.log(elem)
+  $.post("/rm_event", {
+      event: event_name
+  });
+  elem.parentNode.removeChild(elem);
+  var list = document.getElementById('event_list')
+  if (list.childElementCount == 0){
+    list.parentNode.innerHTML = "You do not have added any events."
+  }
+};
+
+// Add a button to add more landmarks to planner
+function planner_more_landmarks() {
+  var plannerLandmarks = document.getElementsByClassName("planner-landmark");
+  var holder = document.getElementById('add-landmark-holder');
+  holder.innerHTML = ""
+  console.log(holder)
+
+  if (plannerLandmarks.length < 4) {
+    var btn = document.createElement("button");
+    btn.setAttribute("type", "button");
+    btn.className = "btn btn-link p-0";
+    btn.setAttribute("id", "add-landmark");
+    btn.innerText = "Add another landmark to the trip";
+    holder.appendChild(btn);
+
+    btn.onclick = add_landmark_input;
+  }
+}
+
+// Run function when page loads
+document.addEventListener('DOMContentLoaded', planner_more_landmarks);
+
+function add_landmark_input() {
+  var nextLandmarkNum = document.getElementsByClassName('planner-landmark').length + 1;
+  var nextLandmark = 'landmark'.concat(nextLandmarkNum);
+  console.log(nextLandmark);
+
+  var label = document.createElement('label');
+  label.setAttribute('for', nextLandmark);
+  label.innerText = 'Landmark '.concat(nextLandmarkNum);
+
+  var input = document.createElement('input');
+  input.className = "form-control planner-landmark";
+  input.setAttribute('id', nextLandmark);
+  input.setAttribute('name', nextLandmark);
+  if (nextLandmarkNum == 3) {
+    input.setAttribute('placeholder', 'Third landmark of the trip')
+  } else if (nextLandmarkNum == 4){
+    input.setAttribute('placeholder', 'Fourth landmark of the trip')
+  }
+
+  var br = document.createElement('br')
+
+
+  var group = document.getElementById('planner-landmark-group')
+  group.appendChild(label)
+  group.appendChild(input)
+  group.appendChild(br)
+
+  planner_more_landmarks()
+}
 
     </script>
 </body>

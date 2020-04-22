@@ -7,9 +7,10 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-
+    
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-    <title>Landmark</title>
+    <title>Landmark Explorer</title>
 
     <style>
         .bg  {
@@ -17,17 +18,19 @@
             background-repeat:no-repeat;
             background-size:cover;
             opacity: 0.4;
-            height: 100%;
+            height: 100vh;
             width: 100%;
             position : relative;
             top: 20;
+        }
 
-
+        .li_item:hover {
+            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
+            cursor: pointer;
         }
 
         .main{
             position: relative;
-
         }
 
         .content{
@@ -36,6 +39,86 @@
             height:100%;
             width:100%;
         }
+        a { text-decoration: none;
+            color: black;}         /* Unvisited link  */
+        a:visited { text-decoration: none;
+            color: black;} /* Visited link    */
+        a:hover { text-decoration: none;
+                color: black;}   /* Mouse over link */
+        a:active { text-decoration: none;
+                color: black;}  /* Selected link   */
+
+        div.stars {
+            width: 270px;
+            display: inline-block;
+        }
+
+        input.star { display: none; }
+
+        label.star {
+            float: right;
+            padding: 10px;
+            font-size: 20px;
+            color: #444;
+            transition: all .2s;
+        }
+
+        input.star:checked ~ label.star:before {
+            content: '\f005';
+            color: #FD4;
+            transition: all .25s;
+        }
+
+        input.star-5:checked ~ label.star:before {
+            color: #FE7;
+            text-shadow: 0 0 20px #952;
+        }
+
+        input.star-1:checked ~ label.star:before { color: #F62; }
+
+        label.star:hover { transform: rotate(-15deg) scale(1.3); }
+
+        label.star:before {
+            content: '\f006';
+            font-family: FontAwesome;
+        }
+
+        .stars-outer {
+            display: inline-block;
+            position: relative;
+        font-family: FontAwesome;
+        }
+        
+        .stars-outer::before {
+            content: "\f006 \f006 \f006 \f006 \f006";
+        }
+        
+        .stars-inner {
+            position: absolute;
+            top: 0;
+            left: 0;
+            white-space: nowrap;
+            overflow: hidden;
+            width: 0;
+        }
+        
+        .stars-inner::before {
+            content: "\f005 \f005 \f005 \f005 \f005";
+            color: #f8ce0b;
+        }
+
+        .news-scrolling {
+            overflow: auto;
+            min-height: 70px;
+            max-height: 200px;
+        }
+
+        .events-scrolling {
+            overflow: auto;
+            min-height: 100px;
+            max-height: 500px;
+        }
+
     </style>
 </head>
 <body>
@@ -63,58 +146,195 @@
                     <div class="col-2"></div>
                     <div class="d-flex justify-content-center p-5 col-8">
                         <h1 id= "lm_name" class="float-center">{{ name }}</h1>
+                        <h1 id= "lm_category" class="float-center">{{ lm_category }}</h1>
                         <h1 id= "news_name" class="float-center" style="display: none;">{{ news_name }}</h1>
                     </div>
                     <div class="col-2 p-4">
                         {% if current_user.is_authenticated %}
-                        <button class="btn btn-primary float-right" id="bookmarkBtn">Bookmark</button>
+                            <button type="submit" class="btn btn-primary float-right" id="bookmark_btn" data-toggle="modal" data-target="#bookmark_modal">Bookmark</button>
+                            <input type="hidden" name="landmark_name" value="{{ name }}"> 
+                            <input type="hidden" name="category" id="categoryhidden" value="{{ category }}"> 
                         {% endif %}
                     </div>
                 </div>
 
-                <div class="container p-5">
+                <div class="container p-5 ">
                     <div class = "row" >
                         <div class = "col">
-                            <img id = "lm_img" class = "img-fluid">
+                            <img src = "{{ image }}" id = "lm_img" class = "img-fluid">
                         </div>
                         <div class = "col border border-primary bg-white text-dark">
-                                <div class="d-flex justify-content-left p-2">
-                                        <h4 >Events</h4>
-
+                            <div class="container-fluid d-flex"> 
+                                <div class="p-2">
+                                    <h4 >Events</h4>
                                 </div>
-                                <ul class = "list-group">
+                            </div>
+                            <div class="container-fluid events-scrolling">
+                                <ul class = "list-group  d-block" id="events">
                                     {% for item in events %}
-                                    <li class = "list-group-item">
-                                       {{ item }}
-                                    </li>
+                                        <li class = "list-group-item li_item">
+                                            <table width="100%">
+                                            	<td width ="90%">
+                                            		<a href="{{item.url}}">
+		                                                <small style="color:rgb(209, 65, 12);">{{item.date}}</small>
+		                                                <h5> {{item.title}} </h5>
+		                                                <p style="text-overflow: ellipsis">{{item.addr}}</p>
+                                            		</a>
+                                            	</td>
+                                            	<td width="10%">
+                                            		{% if current_user.is_authenticated %}
+                                                    	<button type="submit" class="material-icons list-group-item" onclick="add_event(this, name='{{item.title}}', date='{{item.date}}', url='{{item.url}}')" data-toggle="modal" data-target="#event_modal">event</button>
+                                                	{% endif %}
+                                            	</td>
+                                            </table>
+                                        </li>
                                     {% endfor %}
                                 </ul>
+                            </div>
                         </div>
                     </div>
                     <div class = "row p-2">
                         <div class = "col border border-primary bg-white text-dark ">
                                 <div class="d-flex justify-content-left p-2">
-                                        <h4 >About</h4>
+                                    <h4>About</h4>
                                 </div>
                                 <div class="container-fluid">
                                     <p id = "about_element">
-
+                                        {{ desc }}
                                     </p>
                                 </div>
                         </div>
                     </div>
                     <div class = "row p-2">
-                            <div class = "col border border-primary bg-white text-dark ">
-                                    <div class="d-flex justify-content-left p-2">
-                                            <h4 >News</h4>
-                                    </div>
-                                    <div class="container-fluid">
-                                        <ul class="list-group" id="news_list"></ul>
-                                        <br>
-                                    </div>
+                        <div class = "col border border-primary bg-white text-dark ">
+                            <div class="d-flex justify-content-left p-2">
+                                <h4>News</h4>
+                            </div>
+                            <div class="container-fluid news-scrolling">
+                                <ul class="list-group" id="news_list"></ul>
+                                <br>
                             </div>
                         </div>
+                    </div>
+                    <div class = "row p-2">
+                        <div class = "col border border-primary bg-white text-dark ">
+                            <div class="d-flex flex-row justify-content-between">
+                                <div class="p-2">
+                                    <h4>Reviews</h4>
+                                </div>
+                                <div class="p-2">
+                                    {% if current_user.is_authenticated %}
+                                    <button class="btn btn-primary" id="review_btn" data-toggle="modal" data-target="#review-modal">Add review</button>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="container-fluid">
+                                <ul class="list-group" id="reviews_list">
+                                    {% if reviews %}
+    
+                                    {% for review in reviews %}
+                                    <li class="list-group-item">
+                                        <h5>{{ review.username }}</h5>
+                                        <div class="row px-3" style="display: inline-block;">
+                                            <div class="stars-outer">
+                                                {% set percent = review.rating * 20 %}
+                                                <div class="stars-inner" style="width: {{ percent }}%"></div>
+                                            </div>
+                                            <span class="align-bottom" style="margin-left: 15px; font-size: small;">
+                                                {{ review.timestamp.strftime("%d-%m-%Y at %I:%M %p") }}
+                                            </span>
+                                        </div>
+                                        <p>
+                                            {{ review.body }}
+                                            <br>
+                                        </p>
+                                    </li>
+                                    <br>
+                                    {% endfor %}
+    
+                                    {% else %}
+                                    <li class="list-group-item">No reviews for this landmark</li>
+                                    {% endif %}
 
+                                </ul>
+                                <br>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="modal fade" id="review-modal" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h4>Add a review for {{ name }}</h4>
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                            <div class="modal-body">
+                                {% with errors = get_flashed_messages(with_categories=true) %}
+                                {% if errors %}
+                                    {% for category, error in errors %}
+                                    <div class="alert alert-danger">
+                                        {{error}}
+                                    </div>
+                                    {% endfor %}
+                                {% endif %}
+                                {% endwith %}
+                                <form action="{{ url_for('review') }}" method="POST">
+                                    {{ reviewForm.hidden_tag() }}
+                                    <div class="form-group row m-0">
+                                        <div class="stars col-12 d-flex flex-row-reverse justify-content-center h-50">
+                                            <input class="star star-5" id="star-5" type="radio" name="rating" value="5" required/>
+                                            <label class="star star-5" for="star-5"></label>
+                                            <input class="star star-4" id="star-4" type="radio" name="rating" value="4"/>
+                                            <label class="star star-4" for="star-4"></label>
+                                            <input class="star star-3" id="star-3" type="radio" name="rating" value="3"/>
+                                            <label class="star star-3" for="star-3"></label>
+                                            <input class="star star-2" id="star-2" type="radio" name="rating" value="2"/>
+                                            <label class="star star-2" for="star-2"></label>
+                                            <input class="star star-1" id="star-1" type="radio" name="rating" value="1"/>
+                                            <label class="star star-1" for="star-1"></label>
+                                        </div>
+                                    </div>
+                                    <div class="option-error"></div>
+                                    <div class="form-group">
+                                        <!-- {{ reviewForm.body.label }} -->
+                                        <!-- <label>Review description</label> -->
+                                        {{ reviewForm.body(class="form-control", placeholder="Share your experience at this landmark") }}
+                                        {% for error in reviewForm.body.errors %}
+                                        <span style="color: red;">{{ error }}</span>
+                                        {% endfor %}
+                                    </div>
+                                    <input type="hidden" name="landmark_name" value="{{ name }}">
+                                    <!-- {{ reviewForm.landmark(value="{{ name }}")}} -->
+                                    {{ reviewForm.submit(class="btn btn-primary add-review") }}
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="bookmark_modal" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                Bookmark added
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="modal fade" id="event_modal" role="dialog">
+                    <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-body">
+                                Event added
+                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
             </div>
@@ -137,7 +357,7 @@
         }    
     })
 
-    // Image
+    Image
     var image = document.getElementById("lm_img");
     console.log(document.getElementById("lm_name").innerHTML)
     fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + document.getElementById("lm_name").innerHTML;
@@ -162,7 +382,7 @@
     fetch(newsAPIurl, fetchData)
     .then(response => response.json())
     .then(data => {
-        console.log("newapi")
+        console.log("newsapi")
         console.log(data)
         newsUl = document.getElementById('news_list')
         if (data.totalResults == 0) {
@@ -192,8 +412,30 @@
         }
     })
 
-    $("#bookmarkBtn").click(function() {
-        alert("Bookmark has been added");
+    $("#bookmark_btn").click(function(e) {
+        e.preventDefault()
+        var landmark = document.getElementById("lm_name").innerHTML;
+        var category = document.getElementById("categoryhidden").value;
+        $.post("/bookmark", {
+            landmark: landmark,
+            "category": category
+        });
+    });
+
+    function add_event(e, name, date, url){
+        $.post("/events", {
+            name: name,
+            date: date,
+            url: url
+        });
+    };
+
+    $(".add-review").click(function() {
+        $(".option-error").html("");
+        if (!$("input[name='rating']:checked").val()) {
+            $(".option-error").html("Please rate this landmark");
+            $(".option-error").addClass("alert alert-danger")
+        }
     });
 
 </script>
