@@ -465,11 +465,6 @@
     //var content_text = "";
     var stopNumber = 1;
     for (var index of path) {
-      console.log('stop number: ' + stopNumber)
-      // don't add last stop going back to the starting address -- not showed in route on map 
-      if (stopNumber > trip_planner.length) {
-        break;
-      }
       for (var item of trip_planner) {
         if (item.index == index) {
           console.log(item.name)
@@ -488,8 +483,14 @@
             stop.setAttribute('class', 'pb-3')
             content.appendChild(stop)
             title = document.createElement('h5');
-            title.innerHTML = "Next stop";
-            place_name = document.createElement('a');
+            // if going back to start - should be address not landmark so no hyperlink 
+            if (stopNumber == (trip_planner.length + 1)) {
+              place_name = document.createElement('p');
+              title.innerHTML = "Last stop";
+            } else {
+              place_name = document.createElement('a');
+              title.innerHTML = "Next stop";
+            }
             place_name.innerHTML = item.name;
             place_name.setAttribute('href', '/landmark/' + item.category + '/' + item.name)
             stop.appendChild(title);
