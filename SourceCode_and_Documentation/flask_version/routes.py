@@ -1,7 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, flash, Response, jsonify
 from app import app, db, login
 from flask_login import current_user, login_user, logout_user
-from models import User
+from forms import SignUpForm, LoginForm
 from webscraper import *
 import random
 import json
@@ -334,31 +334,7 @@ def index(loginForm=None):
         path = tsp(matrix)
         print(path)
 
-        # i = 0
-        # j = 0
-        # while i < len(user_landmarks):
-        #     while j < len(user_landmarks):
-        #         if user_landmarks[i]['coordinate'][0] == destinations[j]['latitude'] and user_landmarks[i]['coordinate'][1] == destinations[j]['longitude']:
-        #             user_landmarks[i]['index'] = j
-        #             break
-        #         j += 1
-        #     i += 1
-        # i = 0
-        # j = 0
-        # while i < len(user_landmarks):
-        #     while j < len(user_landmarks):
-        #         if user_landmarks[i]['index'] == distance_matrix[j]['destinationIndex']:
-        #             user_landmarks[i]['cost'] = distance_matrix[j]['travelDistance']
-        #             break
-        #         j += 1
-        #     i += 1
-        
-        # print(user_landmarks)
-
-        # now get the actual linestring
-
-        # return redirect(url_for('index'))
-
+       
     if current_user.is_authenticated:
         bookmarks = Bookmark.query.filter_by(username=current_user.username).order_by(Bookmark.landmark).all()
         return render_template('index.html',
@@ -375,6 +351,7 @@ def index(loginForm=None):
                                path = path)
 
     return render_template('index.html',
+
                            lon=lon,
                            lat=lat,
                            zoom=zoom,
@@ -486,6 +463,7 @@ def landmark(category, lm_name):
     events_scraper = Events_scraper(search_name)
     info_scraper = Info_scraper(lm_name)
 
+
     print('category is:', category)
 
     # get reviews
@@ -549,6 +527,7 @@ def login():
 def logout():
     logout_user()
     return redirect(url_for('index'))
+
 
 
 @app.route('/review', methods=['POST'])
