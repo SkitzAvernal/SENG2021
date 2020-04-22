@@ -5,7 +5,7 @@ from forms import SignUpForm, LoginForm
 from webscraper import *
 import random
 import json
-from models import User, Review, Bookmark
+from models import User, Review, Bookmark, Event
 from forms import SignUpForm, LoginForm, ReviewForm, PlannerForm
 from sqlalchemy import desc
 from datetime import datetime
@@ -337,6 +337,7 @@ def index(loginForm=None):
        
     if current_user.is_authenticated:
         bookmarks = Bookmark.query.filter_by(username=current_user.username).order_by(Bookmark.landmark).all()
+        events=Event.query.filter_by(username=current_user.username).all()
         return render_template('index.html',
                                lon=lon,
                                lat=lat,
@@ -348,7 +349,8 @@ def index(loginForm=None):
                                trip_planner=user_landmarks,
                                planner=planner_bool,
                                planner_origin=startCoords,
-                               path = path)
+                               path = path,
+                               events = events)
 
     return render_template('index.html',
 
@@ -578,5 +580,36 @@ def rm_bookmark():
     bookmark = Bookmark.query.filter_by(username=current_user.username, landmark=landmark).first()
    # print(bookmark)
     db.session.delete(bookmark)
+    db.session.commit()
+    return redirect(request.referrer)
+
+
+@app.route('/events', methods=['POST'])
+def events():
+    if not current_user.is_authenticated:
+        return redirect(request.referrer)
+    name = request.form.get('name')
+    date = request.form.get('date')
+    url = request.form.get('url')
+    print(name)
+    
+    exists = db.session.query(Event.name).filter_by(username=current_user.username, url=url).scalar()
+    if exists is not None:
+        return redirect(request.referrer)
+
+    event = Event(username=current_user.username, name=name, date=date, url=url)
+    db.session.add(event)
+    db.session.commit()
+
+    return redirect(request.referrer)
+
+@app.route('/rm_event', methods=['POST'])
+def rm_event():
+    if not current_user.is_authenticated:
+        return redirect(request.referrer)
+
+    name = request.form.get('event')
+    event = Event.query.filter_by(username=current_user.username, name=name).first()
+    db.session.delete(event)
     db.session.commit()
     return redirect(request.referrer)
