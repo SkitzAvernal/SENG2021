@@ -57,8 +57,12 @@ def index(loginForm=None):
         fetchURLstart = fetchURLstart.replace(' ', '+')
         with urllib.request.urlopen(fetchURLstart) as response:
             data = json.loads(response.read().decode())
-            startCoords = data['Response']['View'][0]['Result'][0]['Location']['NavigationPosition'][0]
+            result = data['Response']['View'][0]['Result'][0]
+            startCoords = result['Location']['NavigationPosition'][0]
             startCoords = [startCoords['Latitude'], startCoords['Longitude']]
+            startCategory = result['MatchLevel']
+            startAddressLabel = result['Location']['Address']['Label']
+            startAddressAditional = result['Location']['Address']['AdditionalData'][1]['value']
             # if len(data['Response']['View']) > 0 else None
         startDest = {"name": plannerForm.start.data, "latitude": startCoords[0], "longitude": startCoords[1]}
         destinationList.append(startDest)
@@ -68,8 +72,12 @@ def index(loginForm=None):
         fetchURL1 = fetchURL1.replace(' ', '+')
         with urllib.request.urlopen(fetchURL1) as response:
             data = json.loads(response.read().decode())
-            lm1Coords = data['Response']['View'][0]['Result'][0]['Location']['NavigationPosition'][0]
+            result = data['Response']['View'][0]['Result'][0]
+            lm1Coords = result['Location']['NavigationPosition'][0]
             lm1Coords = [lm1Coords['Latitude'], lm1Coords['Longitude']]
+            lm1Category = result['MatchLevel']
+            lm1AddressLabel = result['Location']['Address']['Label']
+            lm1AddressAditional = result['Location']['Address']['AdditionalData'][1]['value']
             # if len(data['Response']['View']) > 0 else None
         destination1 = {"name": plannerForm.landmark1.data, "latitude": lm1Coords[0], "longitude": lm1Coords[1]}
         destinationList.append(destination1)
@@ -79,8 +87,12 @@ def index(loginForm=None):
         fetchURL2 = fetchURL2.replace(' ', '+')
         with urllib.request.urlopen(fetchURL2) as response:
             data = json.loads(response.read().decode())
-            lm2Coords = data['Response']['View'][0]['Result'][0]['Location']['NavigationPosition'][0]
+            result = data['Response']['View'][0]['Result'][0]
+            lm2Coords = result['Location']['NavigationPosition'][0]
             lm2Coords = [lm2Coords['Latitude'], lm2Coords['Longitude']]
+            lm2Category = result['MatchLevel']
+            lm2AddressLabel = result['Location']['Address']['Label']
+            lm2AddressAditional = result['Location']['Address']['AdditionalData'][1]['value']
             # if len(data['Response']['View']) > 0 else None
         destination2 = {"name": plannerForm.landmark2.data, "latitude": lm2Coords[0], "longitude": lm2Coords[1]}
         destinationList.append(destination2)
@@ -91,8 +103,12 @@ def index(loginForm=None):
             fetchURL3 = fetchURL3.replace(' ', '+')
             with urllib.request.urlopen(fetchURL3) as response:
                 data = json.loads(response.read().decode())
-                lm3Coords = data['Response']['View'][0]['Result'][0]['Location']['NavigationPosition'][0]
+                result = data['Response']['View'][0]['Result'][0]
+                lm3Coords = result['Location']['NavigationPosition'][0]
                 lm3Coords = [lm3Coords['Latitude'], lm3Coords['Longitude']]
+                lm3Category = result['MatchLevel']
+                lm3AddressLabel = result['Location']['Address']['Label']
+                lm3AddressAditional = result['Location']['Address']['AdditionalData'][1]['value']
                 # if len(data['Response']['View']) > 0 else None
             destination3 = {"name": plannerForm.landmark3.data, "latitude": lm3Coords[0], "longitude": lm3Coords[1]}
             destinationList.append(destination3)
@@ -105,8 +121,12 @@ def index(loginForm=None):
             fetchURL4 = fetchURL4.replace(' ', '+')
             with urllib.request.urlopen(fetchURL4) as response:
                 data = json.loads(response.read().decode())
-                lm4Coords = data['Response']['View'][0]['Result'][0]['Location']['NavigationPosition'][0]
+                result = data['Response']['View'][0]['Result'][0]
+                lm4Coords = result['Location']['NavigationPosition'][0]
                 lm4Coords = [lm4Coords['Latitude'], lm4Coords['Longitude']]
+                lm4Category = result['MatchLevel']
+                lm4AddressLabel = result['Location']['Address']['Label']
+                lm4AddressAditional = result['Location']['Address']['AdditionalData'][1]['value']
                 # if len(data['Response']['View']) > 0 else None
             destination4 = {"name": plannerForm.landmark4.data, "latitude": lm4Coords[0], "longitude": lm4Coords[1]}
             destinationList.append(destination4)
@@ -126,31 +146,46 @@ def index(loginForm=None):
                     'coordinate': startCoords,
                     'name': plannerForm.start.data,
                     'index': 1,
-                    'cost': None
+                    'cost': None,
+                    'category': startCategory,
+                    'addressLabel': startAddressLabel,
+                    'addressAdditional': startAddressAditional
                 },
                 {
                     'coordinate': lm1Coords,
                     'name': plannerForm.landmark1.data,
                     'index': 2,
-                    'cost': None
+                    'cost': None,
+                    'category': lm1Category,
+                    'addressLabel': lm1AddressLabel,
+                    'addressAdditional': lm1AddressAditional
                 },
                 {
                     'coordinate': lm2Coords,
                     'name': plannerForm.landmark2.data,
                     'index': 3,
-                    'cost': None
+                    'cost': None,
+                    'category': lm2Category,
+                    'addressLabel': lm2AddressLabel,
+                    'addressAdditional': lm2AddressAditional
                 },
                 {
                     'coordinate': lm3Coords,
                     'name': plannerForm.landmark3.data,
                     'index': 4,
-                    'cost': None
+                    'cost': None,
+                    'category': lm3Category,
+                    'addressLabel': lm3AddressLabel,
+                    'addressAdditional': lm3AddressAditional
                 },
                 {
                     'coordinate': lm4Coords,
                     'name': plannerForm.landmark4.data,
                     'index': 5,
-                    'cost': None
+                    'cost': None,
+                    'category': lm4Category,
+                    'addressLabel': lm4AddressLabel,
+                    'addressAdditional': lm4AddressAditional
                 }
             ]
         elif lm3Coords != None:
@@ -160,25 +195,37 @@ def index(loginForm=None):
                     'coordinate': startCoords,
                     'name': plannerForm.start.data,
                     'index': 1,
-                    'cost': None
+                    'cost': None,
+                    'category': startCategory,
+                    'addressLabel': startAddressLabel,
+                    'addressAdditional': startAddressAditional
                 },
                 {
                     'coordinate': lm1Coords,
                     'name': plannerForm.landmark1.data,
                     'index': 2,
-                    'cost': None
+                    'cost': None,
+                    'category': lm1Category,
+                    'addressLabel': lm1AddressLabel,
+                    'addressAdditional': lm1AddressAditional
                 },
                 {
                     'coordinate': lm2Coords,
                     'name': plannerForm.landmark2.data,
                     'index': 3,
-                    'cost': None
+                    'cost': None,
+                    'category': lm2Category,
+                    'addressLabel': lm2AddressLabel,
+                    'addressAdditional': lm2AddressAditional
                 },
                 {
                     'coordinate': lm3Coords,
                     'name': plannerForm.landmark3.data,
                     'index': 4,
-                    'cost': None
+                    'cost': None,
+                    'category': lm3Category,
+                    'addressLabel': lm3AddressLabel,
+                    'addressAdditional': lm3AddressAditional
                 }
             ]
         else:
@@ -189,19 +236,28 @@ def index(loginForm=None):
                     'coordinate': startCoords,
                     'name': plannerForm.start.data,
                     'index': 1,
-                    'cost': None
+                    'cost': None,
+                    'category': startCategory,
+                    'addressLabel': startAddressLabel,
+                    'addressAdditional': startAddressAditional
                 },
                 {
                     'coordinate': lm1Coords,
                     'name': plannerForm.landmark1.data,
                     'index': 2,
-                    'cost': None
+                    'cost': None,
+                    'category': lm1Category,
+                    'addressLabel': lm1AddressLabel,
+                    'addressAdditional': lm1AddressAditional
                 },
                 {
                     'coordinate': lm2Coords,
                     'name': plannerForm.landmark2.data,
                     'index': 3,
-                    'cost': None
+                    'cost': None,
+                    'category': lm2Category,
+                    'addressLabel': lm2AddressLabel,
+                    'addressAdditional': lm2AddressAditional
                 }
             ]
         response = requests.get(fetch_url)
@@ -377,12 +433,12 @@ def get_post_javascript_data():
     # fetch_url =  f'https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext={landmark}&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs'
     # response = requests.get(fetch_url)
     # data = response.json()
-    # coordinate = data['Response']['View'][0]['Result'][0]['Location']['DisplayPosition']
+    # coordinate = result['Location']['DisplayPosition']
     # latitude = coordinate['Latitude']
     # longitude = coordinate['Longitude']
-    # match_level = data['Response']['View'][0]['Result'][0]['MatchLevel']
-    # state = data['Response']['View'][0]['Result'][0]['Location']['Address']['AdditionalData'][1]['value']
-    # address = data['Response']['View'][0]['Result'][0]['Location']['Address']['Label']
+    # match_level = result['MatchLevel']
+    # state = result['Location']['Address']['AdditionalData'][1]['value']
+    # address = result['Location']['Address']['Label']
 
     ###################### fetch landmark description using webscraper #####################
     search_name = landmark
@@ -418,7 +474,7 @@ def get_post_javascript_data():
     #     else:
     #         city = result['Location']['Address']['City']
     #     landmark = result['Location']['Name']
-    #     match_level = data['Response']['View'][0]['Result'][0]['MatchLevel']
+    #     match_level = result['MatchLevel']
     #     latitude = result['Location']['DisplayPosition']['Latitude']
     #     longitude = result['Location']['DisplayPosition']['Longitude']
     #     address = result['Location']['Address']['Label']

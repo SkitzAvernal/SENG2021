@@ -403,28 +403,73 @@
     var marker = new ol.Overlay({
       position:  ol.proj.transform([origin[1], origin[0]], 'EPSG:4326','EPSG:3857'),
       positioning: 'center-center',
-      element:element
+      element: element
 
     });
     map.addOverlay(marker);
 
     for (var item of trip_planner) {
-      var element = document.createElement('div');
-      element.classList.add("pin");
-      element.innerHTML = '<img class = "pin" src="https://img.icons8.com/color/96/000000/marker.png"/>';
+      var data_to_send = {
+      'landmark': item.name,
+      'match_level': item.category
+      };
+
+      // ajax the JSON to the server
+      $.ajax({
+        type: "POST",
+        url: "/postmethod",
+        async: false,
+        contentType: "application/json",
+        data: JSON.stringify({jsdata: data_to_send}),
+        dataType: "json",
+        success: function(response) {
+          localStorage.removeItem('data');
+          localStorage.setItem('data', JSON.stringify(response));
+        },
+        error: function(err) {
+          console.log(err);
+        }
+      });
+
+      var pinelement = document.createElement('div');
+      pinelement.classList.add("landmark");
+      var pincontent = document.createElement("a");
+      pincontent.id = item.name;
+      pincontent.classList.add("lm");
+      pincontent.setAttribute("tabindex" ,"0");
+      pincontent.setAttribute("data-toggle" ,"popover");
+      pincontent.setAttribute("role" ,"button");
+
+      var pinobject = '<a href = "/landmark/' + item.category + "/" + item.name + ", " + item.addressAdditional + '">' + item.name + ", " + item.addressAdditional + '</a>';
+      pincontent.setAttribute("title", pinobject);
+      pincontent.innerHTML = '<img class="landmark_pin" src="https://img.icons8.com/color/96/000000/marker.png"/>';
+      pinelement.appendChild(pincontent);
+      var content_element = "<div><div class = 'row'><div class = 'col'><img src = '" + JSON.parse(localStorage.getItem('data')).image + "' class = 'popover_img'></div><div class = 'col'>" + item.addressLabel + "</div></div></div>";     
+        pincontent.setAttribute("data-content", content_element);      
       var marker = new ol.Overlay({
-        position:  ol.proj.transform([item.coordinate[1], item.coordinate[0]], 'EPSG:4326','EPSG:3857'),
-        positioning: 'center-center',
-        element:element
+          position: ol.proj.transform([item.coordinate[1], item.coordinate[0]], 'EPSG:4326','EPSG:3857'),
+          positioning: 'center-center',
+          element: pinelement
 
       });
+
+      
       map.addOverlay(marker);
     }
+    $(function () {
+      $(".lm").popover({trigger: 'hover | focus', html: true});
+    });
     // colr = ['#16cc6e', '#d1410c', '#1a73f0', '#f28c1f', '#b8d404']
     // i = 0
     console.log(trip_planner)
     //var content_text = "";
+    var stopNumber = 1;
     for (var index of path) {
+      console.log('stop number: ' + stopNumber)
+      // don't add last stop going back to the starting address -- not showed in route on map 
+      if (stopNumber > trip_planner.length) {
+        break;
+      }
       for (var item of trip_planner) {
         if (item.index == index) {
           console.log(item.name)
@@ -434,17 +479,19 @@
             content.appendChild(stop)
             title = document.createElement('h5');
             title.innerHTML = "First stop";
-            place_name = document.createElement('a');
+            place_name = document.createElement('p');
             place_name.innerHTML = item.name;
             stop.appendChild(title);
             stop.appendChild(place_name);
           } else {
             stop = document.createElement('div');
+            stop.setAttribute('class', 'pb-3')
             content.appendChild(stop)
             title = document.createElement('h5');
             title.innerHTML = "Next stop";
-            place_name = document.createElement('p');
+            place_name = document.createElement('a');
             place_name.innerHTML = item.name;
+            place_name.setAttribute('href', '/landmark/' + item.category + '/' + item.name)
             stop.appendChild(title);
             stop.appendChild(place_name);
           }
@@ -484,6 +531,7 @@
           break;
         }
       }
+      stopNumber += 1;
     }
     //content.innerHTML = content_text;
     planner_body.appendChild(content);
@@ -648,10 +696,10 @@ document.getElementById("nearby-btn").onclick = function() {
             break;
           }
 
-               var data_to_send = {
-                'landmark': result.Location.Name,
-                'match_level': data.Response.View[0].Result[0].MatchLevel,
-              };
+            var data_to_send = {
+              'landmark': result.Location.Name,
+              'match_level': data.Response.View[0].Result[0].MatchLevel,
+            };
 
             // ajax the JSON to the server
             $.ajax({
@@ -662,50 +710,50 @@ document.getElementById("nearby-btn").onclick = function() {
               data: JSON.stringify({jsdata: data_to_send}),
               dataType: "json",
               success: function(response) {
-                  localStorage.removeItem('data');
-                  localStorage.setItem('data', JSON.stringify(response));
-                },
+                localStorage.removeItem('data');
+                localStorage.setItem('data', JSON.stringify(response));
+              },
               error: function(err) {
-                  console.log(err);
-                }
-              });
-                    console.log(result)
-                    if (result.Location.Address.District != null) {
-                      city = result.Location.Address.District;
-                    }
-                    else {
-                      city = result.Location.Address.City;
-                    }
-                    var element = document.createElement('div');
-                  
-                    element.classList.add("landmark");
-                    var content = document.createElement("a");
-                    content.id = result.Location.Name;
-                    content.classList.add("lm");
-                    content.setAttribute("tabindex" ,"0");
-                    content.setAttribute("data-toggle" ,"popover");
-                    content.setAttribute("role" ,"button");
-                    // content
-                    
-                            
-                    
-                    // Title
-                    var object = '<a href = "/landmark/' + data.Response.View[0].Result[0].MatchLevel + "/" + result.Location.Name + ", " + city + '">' + result.Location.Name + ", " + city + '</a>';
-                    content.setAttribute("title", object);
-                    content.innerHTML = '<img class="landmark_pin" src="/static/landmark.png"/>';
-                    element.appendChild(content);
-                    var content_element = "<div><div class = 'row'><div class = 'col'><img src = '" + JSON.parse(localStorage.getItem('data')).image + "' class = 'popover_img'></div><div class = 'col'>" + result.Location.Address.Label + "</div></div></div>";     
-                      content.setAttribute("data-content", content_element);      
-                    var marker = new ol.Overlay({
-                        position: ol.proj.transform([result.Location.DisplayPosition.Longitude, result.Location.DisplayPosition.Latitude], 'EPSG:4326','EPSG:3857'),
-                        positioning: 'center-center',
-                        element:element
-
-                    });
+                console.log(err);
+              }
+            });
+            console.log(result)
+            if (result.Location.Address.District != null) {
+              city = result.Location.Address.District;
+            }
+            else {
+              city = result.Location.Address.City;
+            }
+            var element = document.createElement('div');
+          
+            element.classList.add("landmark");
+            var content = document.createElement("a");
+            content.id = result.Location.Name;
+            content.classList.add("lm");
+            content.setAttribute("tabindex" ,"0");
+            content.setAttribute("data-toggle" ,"popover");
+            content.setAttribute("role" ,"button");
+            // content
             
-                   
-                    map.addOverlay(marker);
-                    i += 1;
+                    
+            
+            // Title
+            var object = '<a href = "/landmark/' + data.Response.View[0].Result[0].MatchLevel + "/" + result.Location.Name + ", " + city + '">' + result.Location.Name + ", " + city + '</a>';
+            content.setAttribute("title", object);
+            content.innerHTML = '<img class="landmark_pin" src="/static/landmark.png"/>';
+            element.appendChild(content);
+            var content_element = "<div><div class = 'row'><div class = 'col'><img src = '" + JSON.parse(localStorage.getItem('data')).image + "' class = 'popover_img'></div><div class = 'col'>" + result.Location.Address.Label + "</div></div></div>";     
+              content.setAttribute("data-content", content_element);      
+            var marker = new ol.Overlay({
+                position: ol.proj.transform([result.Location.DisplayPosition.Longitude, result.Location.DisplayPosition.Latitude], 'EPSG:4326','EPSG:3857'),
+                positioning: 'center-center',
+                element:element
+
+            });
+    
+            
+            map.addOverlay(marker);
+            i += 1;
         }
         $(function () {
          
@@ -768,10 +816,6 @@ document.getElementById("search_btn").onclick = function() {
 
   document.getElementById("loading").style.visibility = "visible";
 
-
-  
-
-
   var elements = document.getElementsByClassName("pin");
   while(elements.length > 0){
       elements[0].parentNode.removeChild(elements[0]);
@@ -781,12 +825,9 @@ document.getElementById("search_btn").onclick = function() {
       elements[0].parentNode.removeChild(elements[0]);
   }
 
-
   var search_landmark = document.getElementById("search-landmark").value;
 
   // create a json object here to pass it to the backend
-
-  
 
   var fetch_url = 'https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext=' + search_landmark + '&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs';
   fetch(fetch_url, fetchData)
