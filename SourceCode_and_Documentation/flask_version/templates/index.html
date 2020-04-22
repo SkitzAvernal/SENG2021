@@ -301,7 +301,7 @@
 <div class = "content">
   <div id="mapdiv" class = "mapdiv"></div>
     <div style = "position: absolute; top: 80px; left: 50px; padding: 5px;">
-            <button class = "btn btn-primary"><i class="material-icons " id = "random">take_me</i></button>
+            <button class = "btn btn-primary"><i class="material-icons " id = "random">casino</i></button>
             <button class = "btn btn-primary"><i class="material-icons " id = "nearby-btn">near_me</i></button>
             <button class = " btn btn-primary"><i class="material-icons " id = "current_loc">my_location</i></button>
             {% if planner %}
@@ -634,21 +634,9 @@
   });
 
   document.getElementById('random').addEventListener('click', function () {
-    console.log("Hello");
-    /*
-    while(elements.length > 0){
-      elements[0].parentNode.removeChild(elements[0]);
-    }
-    var elements = document.getElementsByClassName("pin");
-    while(elements.length > 0){
-      elements[0].parentNode.removeChild(elements[0]);
-    }
-    */
     var rand = getNumber();
     $.getJSON('static/places.json', function(data) {
-     console.log(rand)
      var rando_location = data.places[rand]
-     console.log(rando_location)
      document.getElementById("search-landmark").value = rando_location;
      document.getElementById("search_btn").click();
     })
