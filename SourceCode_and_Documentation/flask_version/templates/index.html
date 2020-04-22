@@ -193,6 +193,28 @@
   </div>
 </div>
 
+{% if planner %}
+<div class="modal" tabindex="-1" role="dialog" id = "planner_details">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Your Trip</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="planner_body">
+       
+      
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endif %}
+
 
 
 
@@ -239,7 +261,9 @@
     <div style = "position: absolute; top: 80px; left: 50px; padding: 5px;">
             <button class = "btn btn-primary"><i class="material-icons " id = "nearby-btn">near_me</i></button>
             <button class = " btn btn-primary"><i class="material-icons " id = "current_loc">my_location</i></button>
-            
+            {% if planner %}
+            <button class="btn btn-primary border" id="planner_details_btn" data-toggle="modal" data-target="#planner_details">View My Trip</button>
+            {% endif %}
     </div>
     <div id="search"  style="position: absolute; top: 80px; right: 10px; padding: 5px">
 
@@ -289,6 +313,7 @@
       var planner = JSON.parse('{{ planner | tojson | safe }}');
       var trip_planner = JSON.parse('{{ trip_planner | tojson | safe }}');
       var origin = JSON.parse('{{ planner_origin | tojson | safe }}');
+      var path = JSON.parse('{{ path | tojson | safe }}')
       console.log(planner)
 
       if (localStorage.length != 0) {
@@ -320,85 +345,88 @@
    ]
  });
 
- // trip planner here
+
+
+  // trip planner here
   var prev = origin 
+  
   if (planner) {
+
+    const planner_body = document.getElementById('planner_body');
+    var content = document.createElement('p');
+   // add pins here
+    var element = document.createElement('div');
+    element.classList.add("pin");
+    element.innerHTML = '<img class = "pin" src="https://img.icons8.com/color/96/000000/marker.png"/>';
+    var marker = new ol.Overlay({
+      position:  ol.proj.transform([origin[1], origin[0]], 'EPSG:4326','EPSG:3857'),
+      positioning: 'center-center',
+      element:element
+
+    });
+    map.addOverlay(marker);
+
     for (var item of trip_planner) {
-      const bingKey = "AmiufPk0e3QV0l2SC-0A-XBgPH3rd6dCMmgyfyumfhh35u3BMjbY_4SXA70aOEtA";
-      var url = "https://dev.virtualearth.net/REST/v1/Routes?wp.0=" + prev[0] + "," + prev[1] + "&wp.1=" + item.coordinate[0] + "," + item.coordinate[1] +
-                "&routeAttributes=routePath&key=" + bingKey;
-      prev = item.coordinate;
-      console.log(url)
-      console.log(trip_planner)
-      fetch(url)
-      .then(response=>response.json())
-      .then(data => {
-        console.log(data)
-        var linestring = data.resourceSets[0].resources[0].routePath.line.coordinates;
-        for (var i=0; i<linestring.length; i++) {
-              linestring[i].reverse();
-            }
-        var layerLines = new ol.layer.Vector({
-          source: new ol.source.Vector({
-            features: [new ol.Feature({
-              geometry: new ol.geom.LineString(linestring).transform('EPSG:4326', 'EPSG:3857'),
-              name: 'Line',
-            })]
-          }),
-          style : new ol.style.Style({
-            stroke: new ol.style.Stroke({
-            color: '#d1410c',
-            width: 3
-            })
-          })
-          
-        });
-        var fetch_url = "https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?prox=" + prev[0] + "%2C" + prev[1] + "%2C250&mode=retrieveAddresses&maxresults=1&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs";
-        fetch(fetch_url, fetchData)
-        .then(response => response.json())
-        .then(data => {
-          var name = data.Response.View[0].Result[0].Location.Address.District + ", " + data.Response.View[0].Result[0].Location.Address.AdditionalData[1].value;
-          var element = document.createElement('div');
-          element.classList.add("pin");
+      var element = document.createElement('div');
+      element.classList.add("pin");
+      element.innerHTML = '<img class = "pin" src="https://img.icons8.com/color/96/000000/marker.png"/>';
+      var marker = new ol.Overlay({
+        position:  ol.proj.transform([item.coordinate[1], item.coordinate[0]], 'EPSG:4326','EPSG:3857'),
+        positioning: 'center-center',
+        element:element
 
-          element.innerHTML = '<a id ="landmark_pop" tabindex="0" data-toggle="popover" role = "button" > <img class = "pin" src="https://img.icons8.com/color/96/000000/marker.png"/></a>';
-          var marker = new ol.Overlay({
-            position:  ol.proj.transform([prev[1], prev[0]], 'EPSG:4326','EPSG:3857'),
-            positioning: 'center-center',
-            element:element
-
-          });
-          map.addOverlay(marker);
-          // $(function () {
-          //   var object = '<a href = "/landmark/' + data.Response.View[0].Result[0].MatchLevel + "/" + name + '">' + name + '</a>';
-          //   var image = document.createElement("img");
-          //   image.classList.add("popover_img");
-          //   fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + name;
-          //   fetch(fetch_url, fetchData)
-          //   .then(response => response.json())
-          //   .then(data => {
-          //       image.setAttribute("src", data.items[0].srcset[0].src);
-          //   })
-          //   var cnt = document.createElement('div');
-          //   var row = document.createElement('div');
-          //   row.classList.add('row');
-          //   var col1 = document.createElement('div');
-          //   col1.classList.add('col');
-          //   col1.appendChild(image);
-          //   var col2 = document.createElement('div');
-          //   col2.classList.add('col'); 
-          //   var  para = document.createElement('p');
-          //   para.innerText = data.Response.View[0].Result[0].Location.Address.Label;
-          //   col2.appendChild(para);
-          //   row.appendChild(col1);
-          //   row.appendChild(col2);
-          //   cnt.appendChild(row);
-          //   $('#landmark_pop').popover({title: object,  trigger: 'hover | focus', html: true, content : cnt});
-          // })
-        })
-        map.addLayer(layerLines);   
-      })
+      });
+      map.addOverlay(marker);
     }
+    // colr = ['#16cc6e', '#d1410c', '#1a73f0', '#f28c1f', '#b8d404']
+    // i = 0
+    console.log(trip_planner)
+    var content_text = "";
+    for (var index of path) {
+      for (var item of trip_planner) {
+        if (item.index == index) {
+          console.log(item.name)
+          content_text += item.name + "=>";
+          const bingKey = "AmiufPk0e3QV0l2SC-0A-XBgPH3rd6dCMmgyfyumfhh35u3BMjbY_4SXA70aOEtA";
+          var url = "https://dev.virtualearth.net/REST/v1/Routes?wp.0=" + prev[0] + "," + prev[1] + "&wp.1=" + item.coordinate[0] + "," + item.coordinate[1] +
+                    "&routeAttributes=routePath&key=" + bingKey;
+          prev = item.coordinate;
+          console.log(url)
+          console.log(trip_planner)
+          fetch(url)
+          .then(response=>response.json())
+          .then(data => {
+            console.log(data)
+            var linestring = data.resourceSets[0].resources[0].routePath.line.coordinates;
+            for (var i=0; i<linestring.length; i++) {
+                  linestring[i].reverse();
+                }
+            var layerLines = new ol.layer.Vector({
+              source: new ol.source.Vector({
+                features: [new ol.Feature({
+                  geometry: new ol.geom.LineString(linestring).transform('EPSG:4326', 'EPSG:3857'),
+                  name: 'Line',
+                })]
+              }),
+              style : new ol.style.Style({
+                stroke: new ol.style.Stroke({
+                // color: colr[i],
+                width: 3
+                })
+              })
+              
+            });
+            i += 1
+            map.addLayer(layerLines);   
+          })
+          break;
+        }
+      }
+    }
+    content.innerHTML = content_text;
+    planner_body.appendChild(content);
+    $('#planner_details').modal('show');
+
   }
 
  map.on('singleclick', function (evt) {
