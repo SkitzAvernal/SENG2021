@@ -301,6 +301,7 @@
 <div class = "content">
   <div id="mapdiv" class = "mapdiv"></div>
     <div style = "position: absolute; top: 80px; left: 50px; padding: 5px;">
+            <button class = "btn btn-primary"><i class="material-icons " id = "random">explore</i></button>
             <button class = "btn btn-primary"><i class="material-icons " id = "nearby-btn">near_me</i></button>
             <button class = " btn btn-primary"><i class="material-icons " id = "current_loc">my_location</i></button>
             {% if planner %}
@@ -590,7 +591,7 @@
       col1.classList.add('col');
       col1.appendChild(image);
       var col2 = document.createElement('div');
-      col2.classList.add('col'); 
+      col2.classList.add('col');
       var  para = document.createElement('p');
       para.innerText = data.Response.View[0].Result[0].Location.Address.Label;
       col2.appendChild(para);
@@ -600,8 +601,8 @@
       $('#landmark_pop').popover({title: object,  trigger: 'hover | focus', html: true, content : cnt});
     })
   })
-  
-  
+
+
 });
 
  var geolocation = new ol.Geolocation({
@@ -633,6 +634,18 @@
 
   });
 
+  document.getElementById('random').addEventListener('click', function () {
+    console.log("Hello");
+    
+    var rand = getNumber();
+    $.getJSON('/static/places.json', function(data) {
+     console.log(rand)
+     var rando_location = data.places[rand]
+     console.log(rando_location)
+     document.getElementById("search-landmark").value = rando_location;
+     document.getElementById("search_btn").click();
+    })
+  })
 
 var accuracyFeature = new ol.Feature();
 geolocation.on('change:accuracyGeometry', function() {
@@ -757,7 +770,7 @@ document.getElementById("nearby-btn").onclick = function() {
             i += 1;
         }
         $(function () {
-         
+
           $(".lm").popover({trigger: 'hover | focus', html: true});
         });
         document.getElementById("loading").style.visibility = "hidden";
@@ -771,7 +784,7 @@ document.getElementById("nearby-btn").onclick = function() {
 var tb = document.getElementById('places_tb');
 
 document.getElementById("toggle-btn").onclick = function() {
-  
+
     var elements = document.getElementsByClassName("places_row");
     while (elements.length > 0) {
       elements[0].parentNode.removeChild(elements[0]);
@@ -811,6 +824,13 @@ function getLocation() {
 
 function showPosition(position) {
   console.log(position.coords.latitude + " ," +  position.coords.longitude);
+}
+
+function getNumber() {
+  var minNumber = 0; // The minimum number you want
+  var maxNumber = 3; // The maximum number you want, alter as we change the json file
+  var randomnumber = Math.floor(Math.random() * (maxNumber + 1) + minNumber); // Generates random number
+  return randomnumber;
 }
 
 document.getElementById("search_btn").onclick = function() {
@@ -879,7 +899,7 @@ document.getElementById("search_btn").onclick = function() {
       col1.classList.add('col');
       col1.appendChild(image);
       var col2 = document.createElement('div');
-      col2.classList.add('col'); 
+      col2.classList.add('col');
       var  para = document.createElement('p');
       para.innerText = data.Response.View[0].Result[0].Location.Address.Label;
       col2.appendChild(para);
