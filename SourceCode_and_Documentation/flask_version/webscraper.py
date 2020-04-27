@@ -16,11 +16,11 @@ class Events_scraper(Web_scraper):
     result = []
     page = requests.get(self.url).text
     soup = BeautifulSoup(page, 'lxml')
-    for article in soup.find_all('article', class_="eds-l-pad-all-4 eds-media-card-content eds-media-card-content--list eds-media-card-content--mini eds-media-card-content--square eds-l-pad-vert-3"):
+    for article in soup.find_all('article', class_="eds-l-pad-all-4 eds-event-card-content eds-event-card-content--list eds-event-card-content--mini eds-event-card-content--square eds-l-pad-vert-3"):
       event_image_src = article.aside.a['href']
-      content = article.find('div', class_="eds-media-card-content__content__principal")
+      content = article.find('div', class_="eds-event-card-content__content-container eds-l-pad-right-2")
       try:
-        event_date = content.div.div.text
+        event_date = content.div.div.div.div.text
       except:
         event_date = "NA"
       try:
@@ -43,6 +43,7 @@ class Events_scraper(Web_scraper):
         'url' : event_url
       }
       result.append(result_dict)
+    print(result)
     return result
 
 class Info_scraper(Web_scraper):
@@ -58,7 +59,6 @@ class Info_scraper(Web_scraper):
     page = requests.get(self.url_img,headers={'User-Agent':"Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/43.0.2357.134 Safari/537.36"}).text
     soup = BeautifulSoup(page, 'lxml')
     base_url = soup.find('a', "iusc").div.img['src']
-    print(base_url)
     return base_url
 
 
@@ -75,8 +75,4 @@ class Info_scraper(Web_scraper):
     return desc
 
 
-if __name__ == "__main__":
-  scraper = Info_scraper("Sydney")
-  print(scraper.get_description())
-  print(scraper.get_image())
   

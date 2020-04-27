@@ -133,12 +133,6 @@ def index(loginForm=None):
         else:
             lm4Coords = None
 
-        print(startCoords)
-        print(lm1Coords)
-        print(lm2Coords)
-        print(lm3Coords)
-        print(lm4Coords)
-
         if lm3Coords != None and lm4Coords != None:
             fetch_url = f"https://dev.virtualearth.net/REST/v1/Routes/DistanceMatrix?origins={startCoords[0]},{startCoords[1]};{lm1Coords[0]},{lm1Coords[1]};{lm2Coords[0]},{lm2Coords[1]};{lm3Coords[0]},{lm3Coords[1]};{lm4Coords[0]},{lm4Coords[1]}&destinations={startCoords[0]},{startCoords[1]};{lm1Coords[0]},{lm1Coords[1]};{lm2Coords[0]},{lm2Coords[1]};{lm3Coords[0]},{lm3Coords[1]};{lm4Coords[0]},{lm4Coords[1]}&travelMode=driving&distanceUnit=km&key=AmiufPk0e3QV0l2SC-0A-XBgPH3rd6dCMmgyfyumfhh35u3BMjbY_4SXA70aOEtA"
             user_landmarks = [
@@ -285,7 +279,7 @@ def index(loginForm=None):
 
         print(matrix)
 
-        # This code block is taken from taken from https://github.com/abhishekjiitr/tsp-python/blob/master/helper.py
+        # This code block is taken from https://github.com/abhishekjiitr/tsp-python/blob/master/helper.py
         # With some modification
         
         from math import isinf, sqrt, degrees, acos
@@ -384,7 +378,6 @@ def index(loginForm=None):
             path = get_path(p)
             
             Cost = cost[2**n-2][0]
-            print("Total cost for travelling with minimum route is :",Cost)
             return path
 
         path = tsp(matrix)
@@ -429,17 +422,6 @@ def get_post_javascript_data():
     match_level = jsdata['jsdata']['match_level']
     landmark = jsdata['jsdata']['landmark']
 
-    ###################### fetch landmark coordinate #######################################
-    # fetch_url =  f'https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext={landmark}&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs'
-    # response = requests.get(fetch_url)
-    # data = response.json()
-    # coordinate = result['Location']['DisplayPosition']
-    # latitude = coordinate['Latitude']
-    # longitude = coordinate['Longitude']
-    # match_level = result['MatchLevel']
-    # state = result['Location']['Address']['AdditionalData'][1]['value']
-    # address = result['Location']['Address']['Label']
-
     ###################### fetch landmark description using webscraper #####################
     search_name = landmark
     if match_level == "city":
@@ -447,67 +429,11 @@ def get_post_javascript_data():
     events_scraper = Events_scraper(search_name)
     info_scraper = Info_scraper(landmark)
     img_src = info_scraper.get_image()
-    # description = info_scraper.get_description()
 
     res_dict = {
-        # 'landmark': landmark,
-        # 'match_level': match_level,
-        # 'latitude': int(latitude),
-        # 'longitude': int(longitude),
-        # 'address': address,
+       
         'image': img_src
-        # 'description': description
     }
-    # result = {
-    #     'lm_data': res_dict
-    # }
-
-    ##################### fetch landmarks near landmark ####################################
-    # nearby = []
-    # fetch_url = f'https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?apiKey=4ZRwHTCnCEe1HV3smhin6xJBjTP9r8zwWyZz-8rM3a4&mode=retrieveLandmarks&prox={latitude},{longitude},100000'
-    # response = requests.get(fetch_url)
-    # data = response.json()
-    # i = 0
-    # for result in data['Response']['View'][0]['Result']:
-    #     if result['Location']['Address'].__contains__('District'):
-    #         city = result['Location']['Address']['District']
-    #     else:
-    #         city = result['Location']['Address']['City']
-    #     landmark = result['Location']['Name']
-    #     match_level = result['MatchLevel']
-    #     latitude = result['Location']['DisplayPosition']['Latitude']
-    #     longitude = result['Location']['DisplayPosition']['Longitude']
-    #     address = result['Location']['Address']['Label']
-
-    #     ##################### fetch nearby landmark info using web scraper ######################
-
-    #     search_name = landmark
-    #     if match_level == "city":
-    #         search_name = landmark.split(',')[0]
-    #     events_scraper = Events_scraper(search_name)
-    #     info_scraper = Info_scraper(landmark)
-    #     img_src = info_scraper.get_image()
-    #     # description = info_scraper.get_description()
-
-    #     res_dict = {
-    #         'city': city,
-    #         'landmark': landmark,
-    #         'match_level': match_level,
-    #         'latitude': int(latitude),
-    #         'longitude': int(longitude),
-    #         'address': address,
-    #         'image': img_src
-    #         # 'description': description
-    #     }
-    #     nearby.append(res_dict)
-    #     if i >= 2:
-    #         break
-    #     i += 1
-
-    # result.update({
-    #     'nearby': nearby
-    # })
-    print(res_dict)
     return jsonify(res_dict)
 
 
@@ -520,29 +446,20 @@ def landmark(category, lm_name):
         search_name = lm_name.split(',')[0]
     events_scraper = Events_scraper(search_name)
     info_scraper = Info_scraper(lm_name)
-
-
-    print('category is:', category)
-
+    events = events_scraper.get_events()
+    print('the events is' ,events)
     # get reviews
     reviewForm = ReviewForm()
     reviews = Review.query.filter_by(landmark=news_name).order_by(desc(Review.timestamp)).all()
-    # print(reviews)
     return render_template('landmark.html',
                            name=news_name,
                            image=info_scraper.get_image(),
                            desc=info_scraper.get_description(),
-                           events=events_scraper.get_events(),
+                           events=events,
                            news_name=news_name,
                            category=category,
                            reviewForm=reviewForm,
                            reviews=reviews)
-# @app.route('/landmark/<lm_name>')
-# def landmark(lm_name):
-#     reviewForm = ReviewForm()
-#     reviews = Review.query.filter_by(landmark=lm_name).order_by(desc(Review.timestamp)).all()
-#     # print(reviews)
-#     return render_template('landmark.html', name = lm_name, reviewForm=reviewForm, reviews=reviews)
 
 
 @app.route('/signup', methods=['GET', 'POST'])
@@ -597,11 +514,7 @@ def review():
 
     if reviewForm.validate_on_submit():
         landmark = request.form.get('landmark_name')
-        rating = request.form['rating']
-        print('rating is', rating)
-        # print('body', reviewForm.body.data)
-        # print('username', current_user.username)
-        # print('landmark', landmark)
+        rating = request.form['rating'] 
         review = Review(body=reviewForm.body.data, username=current_user.username, landmark=landmark, timestamp=datetime.now(), rating=rating)
         db.session.add(review)
         db.session.commit()
@@ -634,9 +547,7 @@ def rm_bookmark():
         return redirect(request.referrer)
 
     landmark = request.form['landmark']
-    #print('user is {} nd landmark is{}'.format(current_user.username, landmark))
     bookmark = Bookmark.query.filter_by(username=current_user.username, landmark=landmark).first()
-   # print(bookmark)
     db.session.delete(bookmark)
     db.session.commit()
     return redirect(request.referrer)
@@ -665,7 +576,6 @@ def events():
 def rm_event():
     if not current_user.is_authenticated:
         return redirect(request.referrer)
-
     name = request.form.get('event')
     event = Event.query.filter_by(username=current_user.username, name=name).first()
     db.session.delete(event)

@@ -1,141 +1,33 @@
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
-    <title>Landmark Explorer</title>
-
-    <style>
-        .bg  {
-            background-image:url('/static/bg.png');
-            background-repeat:no-repeat;
-            background-size:cover;
-            opacity: 0.4;
-            height: 100vh;
-            width: 100%;
-            position : relative;
-            top: 20;
-        }
-
-        .li_item:hover {
-            box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2), 0 6px 20px 0 rgba(0, 0, 0, 0.19);
-            cursor: pointer;
-        }
-
-        .main{
-            position: relative;
-        }
-
-        .content{
-            position: absolute;
-            top:0;
-            height:100%;
-            width:100%;
-        }
-        a { text-decoration: none;
-            color: black;}         /* Unvisited link  */
-        a:visited { text-decoration: none;
-            color: black;} /* Visited link    */
-        a:hover { text-decoration: none;
-                color: black;}   /* Mouse over link */
-        a:active { text-decoration: none;
-                color: black;}  /* Selected link   */
-
-        div.stars {
-            width: 270px;
-            display: inline-block;
-        }
-
-        input.star { display: none; }
-
-        label.star {
-            float: right;
-            padding: 10px;
-            font-size: 20px;
-            color: #444;
-            transition: all .2s;
-        }
-
-        input.star:checked ~ label.star:before {
-            content: '\f005';
-            color: #FD4;
-            transition: all .25s;
-        }
-
-        input.star-5:checked ~ label.star:before {
-            color: #FE7;
-            text-shadow: 0 0 20px #952;
-        }
-
-        input.star-1:checked ~ label.star:before { color: #F62; }
-
-        label.star:hover { transform: rotate(-15deg) scale(1.3); }
-
-        label.star:before {
-            content: '\f006';
-            font-family: FontAwesome;
-        }
-
-        .stars-outer {
-            display: inline-block;
-            position: relative;
-        font-family: FontAwesome;
-        }
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="X-UA-Compatible" content="ie=edge">
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
         
-        .stars-outer::before {
-            content: "\f006 \f006 \f006 \f006 \f006";
-        }
-        
-        .stars-inner {
-            position: absolute;
-            top: 0;
-            left: 0;
-            white-space: nowrap;
-            overflow: hidden;
-            width: 0;
-        }
-        
-        .stars-inner::before {
-            content: "\f005 \f005 \f005 \f005 \f005";
-            color: #f8ce0b;
-        }
-
-        .news-scrolling {
-            overflow: auto;
-            min-height: 70px;
-            max-height: 200px;
-        }
-
-        .events-scrolling {
-            overflow: auto;
-            min-height: 100px;
-            max-height: 500px;
-        }
-
-    </style>
-</head>
-<body>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+        <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
+        <link rel="stylesheet" href="/static/lm_style.css" />
+        <title>Landmark Explorer</title>
+    </head>
+    <body>
         <nav class="navbar navbar-expand-lg navbar-dark bg-primary">
                 <a class="navbar-brand" href="#">LANDMARK EXPLORER</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
-                  <span class="navbar-toggler-icon"></span>
+                    <span class="navbar-toggler-icon"></span>
                 </button>
                 <div class="collapse navbar-collapse" id="navbarNav">
-                  <ul class="nav navbar-nav ml-auto">
+                    <ul class="nav navbar-nav ml-auto">
                     <li class="nav-item active">
-                      <a class="nav-link btn btn-primary border" type="button" href="{{url_for('index')}}">Home</a>
+                        <a class="nav-link btn btn-primary border" type="button" href="{{url_for('index')}}">Home</a>
                     </li>
 
-                  </ul>
+                    </ul>
                 </div>
-         </nav>
+            </nav>
 
         <div class="main">
             <div class = "bg">
@@ -175,18 +67,18 @@
                                         {% for item in events %}
                                             <li class = "list-group-item li_item">
                                                 <table width="100%">
-                                                	<td width ="90%">
-                                                		<a href="{{item.url}}">
-    		                                                <small style="color:rgb(209, 65, 12);">{{item.date}}</small>
-    		                                                <h5> {{item.title}} </h5>
-    		                                                <p style="text-overflow: ellipsis">{{item.addr}}</p>
-                                                		</a>
-                                                	</td>
-                                                	<td width="10%">
-                                                		{% if current_user.is_authenticated %}
-                                                        	<button type="submit" class="material-icons list-group-item" onclick="add_event(this, name='{{item.title}}', date='{{item.date}}', url='{{item.url}}')" data-toggle="modal" data-target="#event_modal">event</button>
-                                                    	{% endif %}
-                                                	</td>
+                                                    <td width ="90%">
+                                                        <a href="{{item.url}}">
+                                                            <small style="color:rgb(209, 65, 12);">{{item.date}}</small>
+                                                            <h5> {{item.title}} </h5>
+                                                            <p style="text-overflow: ellipsis">{{item.addr}}</p>
+                                                        </a>
+                                                    </td>
+                                                    <td width="10%">
+                                                        {% if current_user.is_authenticated %}
+                                                            <button type="submit" class="material-icons list-group-item" onclick="add_event(this, name='{{item.title}}', date='{{item.date}}', url='{{item.url}}')" data-toggle="modal" data-target="#event_modal">event</button>
+                                                        {% endif %}
+                                                    </td>
                                                 </table>
                                             </li>
                                         {% endfor %}
@@ -235,7 +127,7 @@
                             <div class="container-fluid">
                                 <ul class="list-group" id="reviews_list">
                                     {% if reviews %}
-    
+
                                     {% for review in reviews %}
                                     <li class="list-group-item">
                                         <h5>{{ review.username }}</h5>
@@ -255,7 +147,7 @@
                                     </li>
                                     <br>
                                     {% endfor %}
-    
+
                                     {% else %}
                                     <li class="list-group-item">No reviews for this landmark</li>
                                     {% endif %}
@@ -303,15 +195,12 @@
                                     </div>
                                     <div class="option-error"></div>
                                     <div class="form-group">
-                                        <!-- {{ reviewForm.body.label }} -->
-                                        <!-- <label>Review description</label> -->
                                         {{ reviewForm.body(class="form-control", placeholder="Share your experience at this landmark") }}
                                         {% for error in reviewForm.body.errors %}
                                         <span style="color: red;">{{ error }}</span>
                                         {% endfor %}
                                     </div>
                                     <input type="hidden" name="landmark_name" value="{{ name }}">
-                                    <!-- {{ reviewForm.landmark(value="{{ name }}")}} -->
                                     {{ reviewForm.submit(class="btn btn-primary add-review") }}
                                 </form>
                             </div>
@@ -343,108 +232,6 @@
 
             </div>
         </div>
-
-<script>
-    // About
-    var about = document.getElementById("about_element");
-    var fetch_url = "https://en.wikipedia.org/api/rest_v1/page/summary/" + document.getElementById("lm_name").innerHTML;
-
-    var fetchData;
-    fetch(fetch_url, fetchData)
-    .then(response => response.json())
-    .then(data => {
-        if (data.extract == null) {
-            about.innerText = "No Information about this landmark.";
-        }
-        else {
-            about.innerText = data.extract;
-        }    
-    })
-
-    Image
-    var image = document.getElementById("lm_img");
-    console.log(document.getElementById("lm_name").innerHTML)
-    fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + document.getElementById("lm_name").innerHTML;
-    console.log(fetch_url)
-    fetch(fetch_url, fetchData)
-    .then(response => {
-        if (response.ok) {
-            return response.json()
-        } else {
-            return Promise.reject('some error happend maybe 404') 
-        }
-    })
-    .then(data => {
-        console.log(data)
-        image.setAttribute("src", data.items[0].srcset[0].src);
-    })
-    .catch(error => console.log('error is', error));
-
-    var lm_name = document.getElementById("lm_name").innerHTML;
-    apiKey = "e8bf85737a554b158b25de6857b8de10"
-    newsAPIurl = "https://newsapi.org/v2/everything?qintitle=" + document.getElementById("news_name").innerHTML + "&apiKey=" + apiKey
-    fetch(newsAPIurl, fetchData)
-    .then(response => response.json())
-    .then(data => {
-        console.log("newsapi")
-        console.log(data)
-        newsUl = document.getElementById('news_list')
-        if (data.totalResults == 0) {
-            const newsLi = document.createElement("li");
-            newsLi.className = "list-group-item";
-            newsLi.innerText = "No news about this landmark"
-            newsUl.appendChild(newsLi)
-        } else {
-            // For each article 
-            for (i = 0; i < data.totalResults && i < 5; i++) {
-                article = data.articles[i]
-                const articleLi = document.createElement("li");
-                articleLi.className = "list-group-item li_item";
-                const a = document.createElement("a");
-                a.href = article.url
-                const title = document.createElement("h5");
-                title.innerText = article.title 
-                const description = document.createElement("p");
-                description.innerText = article.description
-
-                a.appendChild(title)
-                a.appendChild(description)
-                articleLi.appendChild(a)
-                // articleLi.appendChild(description)
-                newsUl.appendChild(articleLi)
-                console.log(data.articles[i].title)
-            }
-        }
-    })
-
-    $("#bookmark_btn").click(function(e) {
-        e.preventDefault()
-        var landmark = document.getElementById("lm_name").innerHTML;
-        var category = document.getElementById("categoryhidden").value;
-        $.post("/bookmark", {
-            landmark: landmark,
-            "category": category
-        });
-    });
-
-    function add_event(e, name, date, url){
-        $.post("/events", {
-            name: name,
-            date: date,
-            url: url
-        });
-    };
-
-    $(".add-review").click(function() {
-        $(".option-error").html("");
-        if (!$("input[name='rating']:checked").val()) {
-            $(".option-error").html("Please rate this landmark");
-            $(".option-error").addClass("alert alert-danger")
-        }
-    });
-
-</script>
-
-
-</body>
+        <script src = "/static/landmark.js"></script>
+    </body>
 </html>

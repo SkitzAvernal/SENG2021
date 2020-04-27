@@ -12,87 +12,8 @@
     <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"/>
     <link rel="shortcut icon" href="">
-    <style>
-        .bs-canvas-overlay {
-            opacity: 0;
-            z-index: -1;
-        }
-
-        .bs-canvas-overlay.show {
-            opacity: 0.85;
-            z-index: 1100;
-        }
-
-        .bs-canvas {
-            top: 0;
-            width: 0;
-            z-index: 1110;
-            overflow-x: hidden;
-            overflow-y: auto;
-        }
-
-        .bs-canvas-left {
-            left: 0;
-        }
-
-        .bs-canvas-right {
-            right: 0;
-        }
-
-        .bs-canvas-anim {
-            transition: all .4s ease-out;
-            -webkit-transition: all .4s ease-out;
-            -moz-transition: all .4s ease-out;
-            -ms-transition: all .4s ease-out;
-        }
-        .pin{
-            height:30;
-            width:30;
-        }
-
-        .landmark {
-          height:40;
-          width:40;
-        }
-
-      .content {
-        margin-top : 0px;
-      }
-
-      .landmark_pin {
-        height:40;
-          width:40;
-      }
-
-      .popover_img {
-        height: 100px;
-        width:120px;
-      }
-      #loading {
-        width: 100%;
-        height: 100%;
-        top: 0;
-        left: 0;
-        position: fixed;
-        display: block;
-        opacity: 0.7;
-        background-color: #fff;
-        z-index: 99;
-        text-align: center;
-      }
-
-      #loading-image {
-        position: absolute;
-        top: 40%;
-        left: 45%;
-        z-index: 100;
-      }
-
+    <link rel="stylesheet" href="/static/style.css" />
     
-
-
-    </style>
-
 </head>
 
  <body>
@@ -557,7 +478,7 @@
   localStorage.setItem('cur_lat', coord[1].toString());
   var lm_name = "";
   var fetch_url = "https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?prox=" + coord[1] + "%2C" + coord[0] + "%2C250&mode=retrieveAddresses&maxresults=1&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs";
-  fetch(fetch_url, fetchData)
+  fetch(fetch_url)
   .then(response => response.json())
   .then(data => {
     var name = data.Response.View[0].Result[0].Location.Address.District + ", " + data.Response.View[0].Result[0].Location.Address.AdditionalData[1].value;
@@ -579,7 +500,7 @@
       var image = document.createElement("img");
       image.classList.add("popover_img");
       fetch_url = "https://en.wikipedia.org/api/rest_v1/page/media-list/" + name;
-      fetch(fetch_url, fetchData)
+      fetch(fetch_url)
       .then(response => response.json())
       .then(data => {
           image.setAttribute("src", data.items[0].srcset[0].src);
@@ -790,7 +711,7 @@ document.getElementById("toggle-btn").onclick = function() {
       elements[0].parentNode.removeChild(elements[0]);
     }
     var fetch_url = 'https://reverse.geocoder.ls.hereapi.com/6.2/reversegeocode.json?apiKey=4ZRwHTCnCEe1HV3smhin6xJBjTP9r8zwWyZz-8rM3a4&mode=retrieveLandmarks&prox=' + localStorage.getItem('cur_lat') + ',' + localStorage.getItem('cur_lon') + ',100000';
-    fetch(fetch_url, fetchData)
+    fetch(fetch_url)
     .then(response => response.json())
     .then(data => {
 
@@ -851,7 +772,7 @@ document.getElementById("search_btn").onclick = function() {
   // create a json object here to pass it to the backend
 
   var fetch_url = 'https://geocoder.ls.hereapi.com/6.2/geocode.json?searchtext=' + search_landmark + '&gen=9&apiKey=PaSJdAi4_bn3hAFxrLoc_eVxEr74-hDTjGXhRICkhYs';
-  fetch(fetch_url, fetchData)
+  fetch(fetch_url)
   .then(response => response.json())
   .then(data => {
     var result = data.Response.View[0].Result[0].Location.DisplayPosition;
